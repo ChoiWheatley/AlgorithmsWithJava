@@ -5,7 +5,6 @@
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.text.StringCharacterIterator;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -34,6 +33,12 @@ public class Ex120956 {
   public void test3() {
     String[] babbling = { "ayayeaya" };
     assertEquals(1, solution(babbling));
+  }
+
+  @Test
+  public void testDup() {
+    String[] babbling = { "ayaaya", "yeye", "woowoo", "mama" };
+    assertEquals(0, solution(babbling));
   }
 
   @Test
@@ -71,11 +76,24 @@ public class Ex120956 {
     var answer = 0;
     for (var b : babbling) {
       StringBuilder babble = new StringBuilder(b);
+      boolean hasDuplicated = false;
+      for (var except : exceptWords) {
+        if (b.contains(except)) {
+          hasDuplicated = true;
+          break;
+        }
+      }
+      if (hasDuplicated) {
+        continue;
+      }
+
       for (var word : words) {
-        var startidx = babble.indexOf(word);
-        if (startidx != -1) {
-          var endidx = startidx + word.length();
-          babble.delete(startidx, endidx);
+        for (var startidx = 0; startidx != -1;) {
+          startidx = babble.indexOf(word);
+          if (startidx != -1) {
+            var endidx = startidx + word.length();
+            babble.delete(startidx, endidx);
+          }
         }
       }
       if (babble.length() == 0) {
