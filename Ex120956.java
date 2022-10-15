@@ -74,29 +74,18 @@ public class Ex120956 {
 
   public static int solution(String[] babbling) {
     var answer = 0;
-    for (var b : babbling) {
-      StringBuilder babble = new StringBuilder(b);
-      boolean hasDuplicated = false;
+    OUTER_LOOP: for (var b : babbling) {
       for (var except : exceptWords) {
         if (b.contains(except)) {
-          hasDuplicated = true;
-          break;
+          continue OUTER_LOOP;
         }
-      }
-      if (hasDuplicated) {
-        continue;
       }
 
       for (var word : words) {
-        for (var startidx = 0; startidx != -1;) {
-          startidx = babble.indexOf(word);
-          if (startidx != -1) {
-            var endidx = startidx + word.length();
-            babble.delete(startidx, endidx);
-          }
-        }
+        // 일치하는 단어를 걍 다 지워버림
+        b = b.replaceAll(word, "");
       }
-      if (babble.length() == 0) {
+      if (b.length() == 0) {
         answer++;
       }
     }
