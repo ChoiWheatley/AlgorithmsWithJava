@@ -29,12 +29,13 @@ public class Ex24060 {
 
     var solver = new Solver();
     var answer = solver.solve(unordered, k);
-    bw.write(answer + "\n");
+    // bw.write(answer + "\n");
+    System.out.println(answer);
   }
 }
 
 class Solver {
-  static final boolean DEBUG = false;
+  static final boolean DEBUG = true;
 
   Long result = -1L;
 
@@ -44,14 +45,10 @@ class Solver {
         unordered,
         (a, b) -> (int) (a - b),
         observer);
-    sorter.sort(0, unordered.length);
-    var log = observer.getCurrent();
-    if (DEBUG) {
-      System.out.println("Solver::solve::log=");
-      log.forEach(System.out::println);
-      System.out.println("end of DEBUG");
-    }
-    if (!log.isEmpty()) {
+    try {
+      sorter.sort(0, unordered.length);
+    } catch (MergeCountException e) {
+      var log = observer.getCurrent();
       result = log.get(log.size() - 1);
     }
     return result;
@@ -132,13 +129,6 @@ class MergeSort<T extends Comparable<?>> {
   private void doMerge(Map<Long, T> newArr, int p, int r) {
     long t = 0;
     while (p < r) {
-      /**
-       * 여기에서 count체크 및 리턴을 수행함.
-       * 원래는 Exception을 사용하도록 지시했는데, 시간초과가 발생했다.
-       */
-      if (mergeCountObserver.doesCountExceedsK()) {
-        return;
-      }
       a[p] = newArr.get(t);
       mergeCountObserver.setCurrent(newArr.get(t));
       mergeCountObserver.doCount();
@@ -146,6 +136,9 @@ class MergeSort<T extends Comparable<?>> {
       t++;
     }
   }
+}
+
+class MergeCountException extends RuntimeException {
 }
 
 /**
@@ -161,16 +154,15 @@ class MergeCountObserver<T> {
     this.current = new LinkedList<>();
   }
 
-  public void doCount() {
+  public void doCount() throws MergeCountException {
     mergeCount++;
+    if (mergeCount == k) {
+      throw new MergeCountException();
+    }
   }
 
   public int getCount() {
     return mergeCount;
-  }
-
-  public boolean doesCountExceedsK() {
-    return this.k <= getCount();
   }
 
   public void setCurrent(T current) {
