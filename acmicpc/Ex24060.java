@@ -8,10 +8,12 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Stream;
+import java.util.Map;
 
 import org.junit.Test;
 
@@ -21,14 +23,14 @@ public class Ex24060 {
     var bw = new BufferedWriter(new OutputStreamWriter(System.out));
     String line = br.readLine();
     String[] strings = line.split(" ");
-    int n = Integer.valueOf(strings[0]);
-    int k = Integer.valueOf(strings[1]);
+    var n = Integer.valueOf(strings[0]);
+    var k = Integer.valueOf(strings[1]);
     line = br.readLine();
     strings = line.split(" ");
-    Integer[] unordered = Stream.of(strings)
-        .mapToInt(Integer::valueOf)
+    Long[] unordered = Stream.of(strings)
+        .mapToLong(Long::valueOf)
         .boxed()
-        .toArray(Integer[]::new);
+        .toArray(Long[]::new);
 
     var solver = new Solver();
     var answer = solver.solve(unordered, k);
@@ -42,17 +44,17 @@ public class Ex24060 {
      * 5 7
      * 4 5 1 3 2
      */
-    var unordered = new Integer[] { 4, 5, 1, 3, 2 };
+    var unordered = new Long[] { 4l, 5l, 1l, 3l, 2l };
     var k = 7;
     var solver = new Solver();
-    assertEquals(3, solver.solve(unordered, k));
+    assertEquals(3L, solver.solve(unordered, k));
   }
 
   @Test
   public void loongRandomStreamSpeedTest() throws IOException {
-    Integer[] unordered = (new Random()).ints(500_000)
+    Long[] unordered = (new Random()).ints(500_000)
         .boxed()
-        .toArray(Integer[]::new);
+        .toArray(Long[]::new);
     System.out.println(unordered[unordered.length - 1]);
   }
 
@@ -61,25 +63,25 @@ public class Ex24060 {
     /**
      * 500_000개의 원소를 정렬할 때 과연 얼마나 오래 걸리는지
      */
-    Integer[] unordered = (new Random()).ints(50_000)
+    Long[] unordered = (new Random()).longs(50_000)
         .boxed()
-        .toArray(Integer[]::new);
+        .toArray(Long[]::new);
     var k = (int) Math.pow(10, 8);
     var solver = new Solver();
-    assertEquals(-1, solver.solve(unordered, k));
+    solver.solve(unordered, k);
   }
 }
 
 class Solver {
   static final boolean DEBUG = false;
 
-  int result = -1;
+  Long result = -1L;
 
-  public int solve(Integer[] unordered, int k) {
-    MergeCountObserver<Integer> observer = new MergeCountObserver<>(k);
-    MergeSort<Integer> sorter = new MergeSort<>(
+  public long solve(Long[] unordered, int k) {
+    MergeCountObserver<Long> observer = new MergeCountObserver<>(k);
+    MergeSort<Long> sorter = new MergeSort<>(
         unordered,
-        (a, b) -> a - b,
+        (a, b) -> (int) (a - b),
         observer);
     sorter.sort(0, unordered.length);
     var log = observer.getCurrent();
@@ -124,7 +126,7 @@ class MergeSort<T extends Comparable<?>> {
    */
   public MergeSort<T> sort(int p, int r) {
     if (p < r) {
-      var q = (int) (Math.ceil((double) (p + r) / (double) 2));
+      var q = (p + r) / 2;
       sort(p, q);
       sort(q + 1, r);
       merge(p, q, r);
@@ -133,30 +135,32 @@ class MergeSort<T extends Comparable<?>> {
   }
 
   private MergeSort<T> merge(int p, int q, int r) {
-    var i = p;
-    var j = q;
-    var t = 0;
+    int i = p;
+    int j = q;
+    long t = 0;
 
-    T[] tmp = a.clone();
+    Map<Long, T> tmp = new HashMap<>();
     while (i < q && j < r) {
       if (comparator.compare(a[i], a[j]) < 0) {
-        tmp[t] = a[i];
+        // tmp.set(t, a[i]);
+        tmp.put(t, a[i]);
         t++;
         i++;
       } else {
-        tmp[t] = a[j];
+        // tmp.set(t, a[j]);
+        tmp.put(t, a[j]);
         t++;
         j++;
       }
     }
     // remainders
     while (i < q) {
-      tmp[t] = a[i];
+      tmp.put(t, a[i]);
       t++;
       i++;
     }
     while (j < r) {
-      tmp[t] = a[j];
+      tmp.put(t, a[j]);
       t++;
       j++;
     }
@@ -164,8 +168,8 @@ class MergeSort<T extends Comparable<?>> {
     return this;
   }
 
-  private void doMerge(T[] newArr, int p, int r) {
-    int t = 0;
+  private void doMerge(Map<Long, T> newArr, int p, int r) {
+    long t = 0;
     while (p < r) {
       /**
        * 여기에서 count체크 및 리턴을 수행함.
@@ -174,8 +178,8 @@ class MergeSort<T extends Comparable<?>> {
       if (mergeCountObserver.doesCountExceedsK()) {
         return;
       }
-      a[p] = newArr[t];
-      mergeCountObserver.setCurrent(newArr[t]);
+      a[p] = newArr.get(t);
+      mergeCountObserver.setCurrent(newArr.get(t));
       mergeCountObserver.doCount();
       p++;
       t++;
