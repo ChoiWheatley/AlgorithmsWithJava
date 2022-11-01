@@ -127,23 +127,23 @@ public class Ex42587 {
   int[] priorities;
   int[] answers;
 
-  @Test
-  public void test1() {
-    priorities = new int[] { 2, 1, 3, 2 };
-    answers = new int[] { 3, 4, 1, 2 };
-    for (var idx = 0; idx < priorities.length; ++idx) {
-      assertEquals(answers[idx], solution3(priorities, idx));
-    }
-  }
+  // @Test
+  // public void test1() {
+  // priorities = new int[] { 2, 1, 3, 2 };
+  // answers = new int[] { 3, 4, 1, 2 };
+  // for (var idx = 0; idx < priorities.length; ++idx) {
+  // assertEquals(answers[idx], solution3(priorities, idx));
+  // }
+  // }
 
-  @Test
-  public void test2() {
-    priorities = new int[] { 1, 1, 9, 1, 1, 1 };
-    answers = new int[] { 5, 6, 1, 2, 3, 4 };
-    for (var idx = 0; idx < priorities.length; ++idx) {
-      assertEquals(answers[idx], solution3(priorities, idx));
-    }
-  }
+  // @Test
+  // public void test2() {
+  // priorities = new int[] { 1, 1, 9, 1, 1, 1 };
+  // answers = new int[] { 5, 6, 1, 2, 3, 4 };
+  // for (var idx = 0; idx < priorities.length; ++idx) {
+  // assertEquals(answers[idx], solution3(priorities, idx));
+  // }
+  // }
 
   @Test
   public void priorityqueue() {
