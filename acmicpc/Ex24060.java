@@ -5,12 +5,10 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Stream;
-import java.util.Map;
 
 public class Ex24060 {
   public static void main(String[] args) throws IOException {
@@ -48,8 +46,8 @@ class Solver24060 {
     try {
       sorter.sort(0, unordered.length);
     } catch (MergeCountException e) {
-      var log = observer.getCurrent();
-      result = log.get(log.size() - 1);
+      var current = observer.getCurrent();
+      return current;
     }
     return result;
   }
@@ -83,10 +81,10 @@ class MergeSort<T extends Comparable<?>> {
    * @return this
    */
   public MergeSort<T> sort(int p, int r) {
-    if (p < r) {
-      var q = (p + r) / 2;
+    if (r - p > 1) {
+      int q = (int) Math.ceil((double) (p + r) / 2.0);
       sort(p, q);
-      sort(q + 1, r);
+      sort(q, r);
       merge(p, q, r);
     }
     return this;
@@ -95,30 +93,33 @@ class MergeSort<T extends Comparable<?>> {
   private MergeSort<T> merge(int p, int q, int r) {
     int i = p;
     int j = q;
-    long t = 0;
+    int t = 0;
 
-    Map<Long, T> tmp = new HashMap<>();
+    // Map<Long, T> tmp = new HashMap<>();
+    final var SIZE = r - p;
+    List<T> tmp = new ArrayList<>(SIZE);
+    for (int idx = 0; idx < SIZE; ++idx) {
+      tmp.add(a[0]);
+    }
     while (i < q && j < r) {
       if (comparator.compare(a[i], a[j]) < 0) {
-        // tmp.set(t, a[i]);
-        tmp.put(t, a[i]);
+        tmp.set(t, a[i]);
         t++;
         i++;
       } else {
-        // tmp.set(t, a[j]);
-        tmp.put(t, a[j]);
+        tmp.set(t, a[j]);
         t++;
         j++;
       }
     }
     // remainders
     while (i < q) {
-      tmp.put(t, a[i]);
+      tmp.set(t, a[i]);
       t++;
       i++;
     }
     while (j < r) {
-      tmp.put(t, a[j]);
+      tmp.set(t, a[j]);
       t++;
       j++;
     }
@@ -126,12 +127,12 @@ class MergeSort<T extends Comparable<?>> {
     return this;
   }
 
-  private void doMerge(Map<Long, T> newArr, int p, int r) {
-    long t = 0;
+  private void doMerge(List<T> newArr, int p, int r) {
+    int t = 0;
     while (p < r) {
-      a[p] = newArr.get(t);
-      mergeCountObserver.setCurrent(newArr.get(t));
-      mergeCountObserver.doCount();
+      final var value = newArr.get(t);
+      a[p] = value;
+      mergeCountObserver.doCount(value);
       p++;
       t++;
     }
@@ -145,16 +146,16 @@ class MergeCountException extends RuntimeException {
  * 원하는 merge 횟수에 도달하게 되면 exception을 발생시킴.
  */
 class MergeCountObserver<T> {
-  int mergeCount = 1;
+  int mergeCount = 0;
   int k;
-  List<T> current;
+  T current;
 
   public MergeCountObserver(int k) {
     this.k = k;
-    this.current = new LinkedList<>();
   }
 
-  public void doCount() throws MergeCountException {
+  public void doCount(T current) throws MergeCountException {
+    this.current = current;
     mergeCount++;
     if (mergeCount == k) {
       throw new MergeCountException();
@@ -165,11 +166,7 @@ class MergeCountObserver<T> {
     return mergeCount;
   }
 
-  public void setCurrent(T current) {
-    this.current.add(current);
-  }
-
-  public List<T> getCurrent() {
-    return current;
+  public T getCurrent() {
+    return this.current;
   }
 }
