@@ -16,7 +16,7 @@ public class Test24060 extends Ex24060 {
      */
     var unordered = new Long[] { 4l, 5l, 1l, 3l, 2l };
     var k = 7;
-    var solver = new Solver();
+    var solver = new Solver24060();
     assertEquals(3L, solver.solve(unordered, k));
   }
 
@@ -24,7 +24,7 @@ public class Test24060 extends Ex24060 {
   public void failTest1() {
     var unordered = new Long[] { 4l, 5l, 1l, 3l, 2l };
     var k = 13;
-    var solver = new Solver();
+    var solver = new Solver24060();
     assertEquals(-1l, solver.solve(unordered, k));
   }
 
@@ -45,7 +45,7 @@ public class Test24060 extends Ex24060 {
         .boxed()
         .toArray(Long[]::new);
     var k = (int) Math.pow(10, 8);
-    var solver = new Solver();
+    var solver = new Solver24060();
     solver.solve(unordered, k);
   }
 }

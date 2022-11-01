@@ -27,14 +27,14 @@ public class Ex24060 {
         .boxed()
         .toArray(Long[]::new);
 
-    var solver = new Solver();
+    var solver = new Solver24060();
     var answer = solver.solve(unordered, k);
     // bw.write(answer + "\n");
     System.out.println(answer);
   }
 }
 
-class Solver {
+class Solver24060 {
   static final boolean DEBUG = true;
 
   Long result = -1L;
