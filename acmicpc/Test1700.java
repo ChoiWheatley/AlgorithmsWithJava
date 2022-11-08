@@ -50,7 +50,7 @@ public class Test1700 {
   @Test
   public void randomTest() {
     Random random = new Random();
-    int k = random.nextInt(1, 20);
+    int k = random.nextInt(20);
     int[] schedule = random
         .ints(k, 1, k + 1)
         .toArray();
@@ -73,7 +73,7 @@ public class Test1700 {
   @RepeatedTest(100)
   public void timeoutTest() {
     Random random = new Random();
-    int k = random.nextInt(1, 101);
+    int k = random.nextInt(101);
     int[] schedule = random
         .ints(k, 1, k + 1)
         .toArray();
