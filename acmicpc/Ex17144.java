@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 public class Ex17144 {
@@ -111,7 +112,18 @@ class Room {
 
     // MARK: link를 이어준다. order-sensitive하다.
     for (Dust d : dusts.values()) {
-      // TODO
+      // 4-ways
+      int r = d.pos.row;
+      int c = d.pos.col;
+      Position up = new Position(r - 1, c, maxRow, maxCol);
+      Position down = new Position(r + 1, c, maxRow, maxCol);
+      Position left = new Position(r, c - 1, maxRow, maxCol);
+      Position right = new Position(r, c + 1, maxRow, maxCol);
+
+      d.addDust(Optional.of(dusts.get(up)));
+      d.addDust(Optional.of(dusts.get(down)));
+      d.addDust(Optional.of(dusts.get(left)));
+      d.addDust(Optional.of(dusts.get(right)));
     }
 
     // MARK: order-sensitive한 nextSecond를 위해 배열을 재조정한다.
@@ -198,8 +210,10 @@ class Dust {
     this(new Position(r, c, maxRow, maxCol), amount);
   }
 
-  public void addDust(Dust d) {
-    dusts.add(d);
+  public void addDust(Optional<Dust> d) {
+    if (d.isPresent()) {
+      dusts.add(d.get());
+    }
   }
 
   public int getDustAmount() {
