@@ -1,14 +1,10 @@
 package acmicpc;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 
 public class Ex17144 {
   public static void main(String[] args) {
@@ -54,43 +50,17 @@ class AirPurifierInAWronLocation extends Throwable {
   }
 }
 
-class Room {
-  AirPurifier[] purifiers;
-  Dust[] dusts;
-  int[][] cachedDustStat;
-  boolean cached = false;
-
-  public final int row;
-  public final int col;
-
-  protected Room(AirPurifier[] purifiers, Dust[] dusts, int r, int c) {
-    this.purifiers = purifiers;
-    this.dusts = dusts;
-    row = r;
-    col = c;
-    cachedDustStat = new int[row][col];
-  }
-
-  /**
-   * 모든 Dust들의 값들을 해당 인덱스에 넣어 2차원 배열로 리턴한다.
-   */
-  public int[][] getDustStat() {
-    if (cached) {
-      return cachedDustStat;
-    }
-    cachedDustStat = new int[row][col];
-    for (var dust : dusts) {
-      int r = dust.pos.row;
-      int c = dust.pos.col;
-      cachedDustStat[r][c] = dust.getAmount();
-    }
-    return cachedDustStat;
+class RoomGenerator extends Room {
+  private RoomGenerator(List<AirPurifier> purifiers, List<Dust> dusts, int r, int c) {
+    super(purifiers, dusts, r, c);
   }
 
   /**
    * 2d int 배열을 Room으로 변환. arr 검증과 order-sensitive한 배열 cells를 만들어낸다.
+   * 
+   * @throws Throwable
    */
-  public static Room create(int[][] arr) throws Throwable {
+  public static Room create(int[][] arr) throws AirPurifierInAWronLocation, AirPurifiersCountsOff {
     int maxRow = arr.length;
     int maxCol = arr[0].length;
 
@@ -110,7 +80,7 @@ class Room {
     }
 
     // MARK: validate를 통해 arr가 잘 들어왔는지 검증한다.
-    validate(purifiers);
+    Room.validate(purifiers);
 
     // MARK: link를 이어준다. order-sensitive하다.
     for (Dust d : dusts.values()) {
@@ -132,7 +102,6 @@ class Room {
     var order = positionsCCW(first.pos, maxRow, maxCol);
     for (Position pos : order) {
       var dust = dusts.get(pos);
-      assert dust != null;
       first.addDust(dust);
     }
 
@@ -141,14 +110,13 @@ class Room {
     order = positionsCW(second.pos, maxRow, maxCol);
     for (Position pos : order) {
       var dust = dusts.get(pos);
-      assert dust != null;
       second.addDust(dust);
     }
 
     // MARK: build Room instance
-    AirPurifier[] purifierArr = purifiers.toArray(AirPurifier[]::new);
-    Dust[] dustArr = dusts.values().toArray(Dust[]::new);
-    Room room = new Room(purifierArr, dustArr, maxRow, maxCol);
+    // AirPurifier[] purifierArr = purifiers.toArray(AirPurifier[]::new);
+    // Dust[] dustArr = dusts.values().toArray(Dust[]::new);
+    Room room = new Room(purifiers, new ArrayList<>(dusts.values()), maxRow, maxCol);
     return room;
   }
 
@@ -198,7 +166,54 @@ class Room {
     return ret;
   }
 
-  public static void validate(List<AirPurifier> purifiers) throws Throwable {
+}
+
+class Room {
+  List<AirPurifier> purifiers;
+  List<Dust> dusts;
+  int[][] cachedDustStat;
+  boolean cached = false;
+
+  public final int row;
+  public final int col;
+
+  protected Room(List<AirPurifier> purifiers, List<Dust> dusts, int r, int c) {
+    this.purifiers = purifiers;
+    this.dusts = dusts;
+    row = r;
+    col = c;
+    cachedDustStat = new int[row][col];
+  }
+
+  /**
+   * 모든 Dust들의 값들을 해당 인덱스에 넣어 2차원 배열로 리턴한다.
+   */
+  public int[][] getDustStat() {
+    if (cached) {
+      return cachedDustStat;
+    }
+    cachedDustStat = new int[row][col];
+    for (var dust : dusts) {
+      int r = dust.pos.row;
+      int c = dust.pos.col;
+      cachedDustStat[r][c] = dust.getAmount();
+    }
+    return cachedDustStat;
+  }
+
+  public void nextSecond() {
+
+  }
+
+  protected void doSpread() {
+
+  }
+
+  protected void doPurify() {
+
+  }
+
+  public static void validate(List<AirPurifier> purifiers) throws AirPurifierInAWronLocation, AirPurifiersCountsOff {
     // AirPurifier 개수가 정확히 2개인지
     if (purifiers.size() != 2)
       throw new AirPurifiersCountsOff(purifiers.size());

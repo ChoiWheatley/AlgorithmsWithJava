@@ -1,5 +1,6 @@
 package acmicpc;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.ArrayList;
@@ -54,6 +55,81 @@ public class Test17144 {
 
     List<Integer> afterSpread = center.getLinkedDusts().stream().map((Dust e) -> e.getAmount()).toList();
     assertEquals(afters, afterSpread);
+  }
+
+  @Test
+  public void roomTest() throws AirPurifierInAWronLocation, AirPurifiersCountsOff {
+    /**
+     * before
+     * 0 0 0 0 0 0 0 9
+     * 0 0 0 0 3 0 0 8
+     * -1 0 5 0 0 0 22 0
+     * -1 8 0 0 0 0 0 0
+     * 0 0 0 0 0 10 43 0
+     * 0 0 5 0 15 0 0 0
+     * 0 0 40 0 0 0 20 0
+     * 
+     * after spread
+     * 0 0 0 0 0 0 1 8
+     * 0 0 1 0 3 0 5 6
+     * -1 2 1 1 0 4 6 5
+     * -1 5 2 0 0 2 12 0
+     * 0 1 1 0 5 10 13 8
+     * 0 1 9 4 3 5 12 0
+     * 0 8 17 8 3 4 8 4
+     * 
+     * after purify
+     * 0 0 0 0 0 1 8 6
+     * 0 0 1 0 3 0 5 5
+     * -1 0 2 1 1 0 4 6
+     * -1 0 5 2 0 0 2 12
+     * 0 1 1 0 5 10 13 0
+     * 0 1 9 4 3 5 12 8
+     * 8 17 8 3 4 8 4 0
+     */
+    int[][] initial = new int[][] {
+        new int[] { 0, 0, 0, 0, 0, 0, 0, 9 },
+        new int[] { 0, 0, 0, 0, 3, 0, 0, 8, },
+        new int[] { -1, 0, 5, 0, 0, 0, 22, 0, },
+        new int[] { -1, 8, 0, 0, 0, 0, 0, 0 },
+        new int[] { 0, 0, 0, 0, 0, 10, 43, 0 },
+        new int[] { 0, 0, 5, 0, 15, 0, 0, 0 },
+        new int[] { 0, 0, 40, 0, 0, 0, 20, 0 }
+    };
+
+    int[][] afterSpread = new int[][] {
+        new int[] { 0, 0, 0, 0, 0, 0, 1, 8, },
+        new int[] { 0, 0, 1, 0, 3, 0, 5, 6, },
+        new int[] { 0, 2, 1, 1, 0, 4, 6, 5, },
+        new int[] { 0, 5, 2, 0, 0, 2, 12, 0 },
+        new int[] { 0, 1, 1, 0, 5, 10, 13, 8 },
+        new int[] { 0, 1, 9, 4, 3, 5, 12, 0, },
+        new int[] { 0, 8, 17, 8, 3, 4, 8, 4, },
+    };
+
+    int[][] afterPurify = new int[][] {
+        new int[] { 0, 0, 0, 0, 0, 1, 8, 6, },
+        new int[] { 0, 0, 1, 0, 3, 0, 5, 5, },
+        new int[] { 0, 0, 2, 1, 1, 0, 4, 6, },
+        new int[] { 0, 0, 5, 2, 0, 0, 2, 12 },
+        new int[] { 0, 1, 1, 0, 5, 10, 13, 0 },
+        new int[] { 0, 1, 9, 4, 3, 5, 12, 8, },
+        new int[] { 8, 17, 8, 3, 4, 8, 4, 0, },
+    };
+
+    try {
+      Room room = RoomGenerator.create(initial);
+      room.doSpread();
+      assertArrayEquals(afterSpread, room.getDustStat());
+      room.doPurify();
+      assertArrayEquals(afterPurify, room.getDustStat());
+    } catch (AirPurifierInAWronLocation e) {
+      e.printStackTrace();
+      throw e;
+    } catch (AirPurifiersCountsOff e) {
+      e.printStackTrace();
+      throw e;
+    }
   }
 }
 
