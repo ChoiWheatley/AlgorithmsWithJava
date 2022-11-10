@@ -1,6 +1,7 @@
 package acmicpc;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -99,7 +100,7 @@ class Room {
       for (int j = 0; j < maxCol; ++j) {
         var amount = arr[i][j];
         if (amount < 0) {
-          purifiers.add(new AirPurifier(i, j));
+          purifiers.add(new AirPurifier(i, j, maxRow, maxCol));
         } else {
           Dust dust = new Dust(i, j, maxRow, maxCol, amount);
           dusts.put(dust.pos, dust);
@@ -125,8 +126,75 @@ class Room {
       d.addDust(Optional.of(dusts.get(left)));
       d.addDust(Optional.of(dusts.get(right)));
     }
+    // upper air purifier
+    AirPurifier first = purifiers.get(0);
+    var order = positionsCCW(first.pos, maxRow, maxCol);
+    for (Position pos : order) {
+      var dust = dusts.get(pos);
+      assert dust != null;
+      first.addDust(dust);
+    }
 
-    // MARK: order-sensitive한 nextSecond를 위해 배열을 재조정한다.
+    // lower air purifier
+    AirPurifier second = purifiers.get(1);
+    order = positionsCW(second.pos, maxRow, maxCol);
+    for (Position pos : order) {
+      var dust = dusts.get(pos);
+      assert dust != null;
+      second.addDust(dust);
+    }
+
+    // MARK: build Room instance
+    AirPurifier[] purifierArr = purifiers.toArray(AirPurifier[]::new);
+    Dust[] dustArr = dusts.values().toArray(Dust[]::new);
+    Room room = new Room(purifierArr, dustArr, maxRow, maxCol);
+    return room;
+  }
+
+  /** 시계방향으로 공기를 순환시키는 링크를 반환 */
+  public static List<Position> positionsCCW(Position start, int maxRow, int maxCol) {
+    List<Position> ret = new ArrayList<>();
+    // go down
+    for (int row = start.row + 1; row < maxRow; ++row) {
+      ret.add(new Position(row, start.col, maxRow, maxCol));
+    }
+    // go right
+    for (int col = 0; col < maxCol; ++col) {
+      ret.add(new Position(maxRow - 1, col, maxRow, maxCol));
+    }
+    // go up
+    for (int row = maxRow - 1; row >= start.row; --row) {
+      ret.add(new Position(row, maxCol - 1, maxRow, maxCol));
+    }
+    // go left
+    for (int col = maxCol - 1; col > 0; --col) {
+      ret.add(new Position(start.row, col, maxRow, maxCol));
+    }
+
+    return ret;
+  }
+
+  /** 반시계방향으로 공기를 순환시키는 링크를 반환 */
+  public static List<Position> positionsCW(Position start, int maxRow, int maxCol) {
+    List<Position> ret = new ArrayList<>();
+    // go up
+    for (int row = start.row - 1; row >= 0; --row) {
+      ret.add(new Position(row, start.col, maxRow, maxCol));
+    }
+    // go right
+    for (int col = 0; col < maxCol; ++col) {
+      ret.add(new Position(0, col, maxRow, maxCol));
+    }
+    // go down
+    for (int row = 0; row <= start.row; ++row) {
+      ret.add(new Position(row, maxCol - 1, maxRow, maxCol));
+    }
+    // go left
+    for (int col = maxCol - 1; col > 0; --col) {
+      ret.add(new Position(start.row, col, maxRow, maxCol));
+    }
+
+    return ret;
   }
 
   public static void validate(List<AirPurifier> purifiers) throws Throwable {
@@ -136,9 +204,9 @@ class Room {
     // AirPurifier가 1열에 서로 붙어있는지
     var p1 = purifiers.get(0);
     var p2 = purifiers.get(1);
-    if (p1.col != 0 || p2.col != 0 ||
-        p2.row - p1.row != 1) {
-      throw new AirPurifierInAWronLocation(p1.row, p2.row, p1.col, p2.col);
+    if (p1.pos.col != 0 || p2.pos.col != 0 ||
+        p2.pos.row - p1.pos.row != 1) {
+      throw new AirPurifierInAWronLocation(p1.pos.row, p2.pos.row, p1.pos.col, p2.pos.col);
     }
   }
 }
@@ -168,15 +236,17 @@ class Position {
 }
 
 class AirPurifier {
-  public final int row;
-  public final int col;
+  public Position pos;
 
   private List<Dust> dusts;
 
-  public AirPurifier(int r, int c) {
-    row = r;
-    col = c;
-    dusts = new ArrayList<>(row * col);
+  public AirPurifier(Position pos) {
+    this.pos = pos;
+    dusts = new ArrayList<>(pos.row * pos.col);
+  }
+
+  public AirPurifier(int r, int c, int maxRow, int maxCol) {
+    this(new Position(r, c, maxRow, maxCol));
   }
 
   public void addDust(Dust d) {
