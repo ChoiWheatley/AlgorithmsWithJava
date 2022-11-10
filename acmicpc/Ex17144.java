@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -62,7 +63,7 @@ class Room {
   public final int row;
   public final int col;
 
-  private Room(AirPurifier[] purifiers, Dust[] dusts, int r, int c) {
+  protected Room(AirPurifier[] purifiers, Dust[] dusts, int r, int c) {
     this.purifiers = purifiers;
     this.dusts = dusts;
     row = r;
@@ -81,7 +82,7 @@ class Room {
     for (var dust : dusts) {
       int r = dust.pos.row;
       int c = dust.pos.col;
-      cachedDustStat[r][c] = dust.getDustAmount();
+      cachedDustStat[r][c] = dust.getAmount();
     }
     return cachedDustStat;
   }
@@ -121,10 +122,10 @@ class Room {
       Position left = new Position(r, c - 1, maxRow, maxCol);
       Position right = new Position(r, c + 1, maxRow, maxCol);
 
-      d.addDust(Optional.of(dusts.get(up)));
-      d.addDust(Optional.of(dusts.get(down)));
-      d.addDust(Optional.of(dusts.get(left)));
-      d.addDust(Optional.of(dusts.get(right)));
+      d.addDust(Optional.ofNullable(dusts.get(up)));
+      d.addDust(Optional.ofNullable(dusts.get(down)));
+      d.addDust(Optional.ofNullable(dusts.get(left)));
+      d.addDust(Optional.ofNullable(dusts.get(right)));
     }
     // upper air purifier
     AirPurifier first = purifiers.get(0);
@@ -238,7 +239,7 @@ class Position {
 class AirPurifier {
   public Position pos;
 
-  private List<Dust> dusts;
+  protected List<Dust> dusts;
 
   public AirPurifier(Position pos) {
     this.pos = pos;
@@ -258,9 +259,12 @@ class AirPurifier {
   // */
   public void purify() {
     for (int idx = 0; idx < dusts.size() - 1; ++idx) {
+      var cur = dusts.get(idx);
       var next = dusts.get(idx + 1);
-      dusts.set(idx, next);
+      cur.setDustAmount(next.getAmount());
     }
+    // last element becomes 0
+    dusts.get(dusts.size() - 1).setDustAmount(0);
   }
 }
 
@@ -286,8 +290,12 @@ class Dust {
     }
   }
 
-  public int getDustAmount() {
+  public int getAmount() {
     return this.amount;
+  }
+
+  protected List<Dust> getLinkedDusts() {
+    return dusts;
   }
 
   public void setDustAmount(int amount) {
@@ -298,13 +306,25 @@ class Dust {
     if (this.amount == 0)
       return;
     int cnt = dusts.size();
-    int spreadAmount = getDustAmount() / 5;
-    for (var dust : dusts) {
-      int yours = dust.getDustAmount();
-      yours = yours - (spreadAmount * cnt);
-      dust.setDustAmount(yours);
+    int spreadAmount = getAmount() / 5;
+    for (Dust linked : getLinkedDusts()) {
+      int yours = linked.getAmount();
+      yours = yours + spreadAmount;
+      linked.setDustAmount(yours);
     }
-    int remainder = getDustAmount() - (spreadAmount * cnt);
+    int remainder = getAmount() - (spreadAmount * cnt);
     setDustAmount(remainder);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj instanceof Dust) {
+      Dust other = (Dust) obj;
+      if (this.pos.equals(other.pos) &&
+          this.getAmount() == other.getAmount()) {
+        return true;
+      }
+    }
+    return false;
   }
 }
