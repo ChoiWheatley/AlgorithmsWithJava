@@ -3,6 +3,7 @@ package acmicpc;
 import static org.junit.Assert.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
+import java.util.Arrays;
 import java.util.stream.IntStream;
 
 import org.junit.Test;
@@ -95,10 +96,43 @@ public class Test2580 {
   }
 
   @Test
+  public void testDuplicateCenterOfTest() {
+    int[][] sampleArr = SudokuStringConverter.convert(sampleStr);
+    // (0,0) -> 1 이면 정답
+    assertEquals(true, Solver2580.testDuplicateCenterOf(0, 0, 1, sampleArr));
+    // (0,0) -> 3,5,7,8,2,6,4,9 이면 모두 오답
+    assertEquals(false, Solver2580.testDuplicateCenterOf(0, 0, 2, sampleArr));
+    assertEquals(false, Solver2580.testDuplicateCenterOf(0, 0, 3, sampleArr));
+    assertEquals(false, Solver2580.testDuplicateCenterOf(0, 0, 4, sampleArr));
+    assertEquals(false, Solver2580.testDuplicateCenterOf(0, 0, 5, sampleArr));
+    assertEquals(false, Solver2580.testDuplicateCenterOf(0, 0, 6, sampleArr));
+    assertEquals(false, Solver2580.testDuplicateCenterOf(0, 0, 7, sampleArr));
+    assertEquals(false, Solver2580.testDuplicateCenterOf(0, 0, 8, sampleArr));
+    assertEquals(false, Solver2580.testDuplicateCenterOf(0, 0, 9, sampleArr));
+  }
+
+  @Test
   public void solve1() {
     int[][] sampleArr = SudokuStringConverter.convert(sampleStr);
-    assertEquals(true,
-        Solver2580.validate(
-            Solver2580.solve(sampleArr)));
+    int[][] submit = Solver2580.solve(sampleArr);
+    for (int i = 0; i < submit.length; ++i) {
+      for (int j = 0; j < submit[i].length; ++j) {
+        System.out.printf("%d ", submit[i][j]);
+      }
+      System.out.println();
+    }
+    assertEquals(true, Solver2580.validate(submit));
+  }
+
+  @Test
+  public void timeoutTest() {
+    int[][] sampleArr = new int[Const2580.LEN][Const2580.LEN];
+    int[][] submit = Solver2580.solve(sampleArr);
+    for (int i = 0; i < submit.length; ++i) {
+      for (int j = 0; j < submit[i].length; ++j) {
+        System.out.printf("%d ", submit[i][j]);
+      }
+      System.out.println();
+    }
   }
 }

@@ -1,17 +1,71 @@
 package acmicpc;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 public class Ex2580 {
-  public static void main(String[] args) {
+  public static void main(String[] args) throws IOException {
+    var reader = new BufferedReader(new InputStreamReader(System.in));
+    var writer = new BufferedWriter(new OutputStreamWriter(System.out));
+    String[] lines = new String[Const2580.LEN];
+    for (int row = 0; row < Const2580.LEN; ++row) {
+      lines[row] = reader.readLine();
+    }
+    StringBuilder sb = new StringBuilder();
+    int[][] unfinished = SudokuStringConverter.convert(lines);
+    int[][] result = Solver2580.solve(unfinished);
+    for (int i = 0; i < result.length; ++i) {
+      for (int j = 0; j < result[i].length; ++j) {
+        sb.append(result[i][j] + " ");
+      }
+      sb.append("\n");
+    }
 
+    writer.write(sb.toString());
+    writer.flush();
   }
 }
 
 class Solver2580 {
   public static int[][] solve(int[][] unfinished) {
     int[][] ret = unfinished.clone();
+    List<Pair<Integer, Integer>> zeros = findZeros(ret);
+    int top = 0;
+
+    while (top < zeros.size()) {
+      var pair = zeros.get(top);
+      int r = pair.first;
+      int c = pair.second;
+      boolean isPossible = false;
+      int sample = 1;
+      for (sample = 1; sample <= 9; ++sample) {
+        if (testDuplicateCenterOf(r, c, sample, ret)) {
+          ret[r][c] = sample;
+          isPossible = true;
+          break;
+        }
+      }
+      if (!isPossible) {
+        // revert last element into zero
+        top--;
+        var pair2 = zeros.get(top);
+        var r2 = pair2.first;
+        var c2 = pair2.second;
+        ret[r2][c2] = 0;
+      } else {
+        top++;
+      }
+    }
 
     return ret;
   }
@@ -73,6 +127,48 @@ class Solver2580 {
     return ret;
   }
 
+  public static List<Pair<Integer, Integer>> findZeros(int[][] origin) {
+    var ret = new ArrayList<Pair<Integer, Integer>>(Const2580.LEN * Const2580.LEN);
+    for (int i = 0; i < origin.length; ++i) {
+      for (int j = 0; j < origin[i].length; ++j) {
+        if (origin[i][j] == 0) {
+          ret.add(Pair.of(i, j));
+        }
+      }
+    }
+    return ret;
+  }
+
+  public static boolean hasDuplicateExceptZero(int[] sample) {
+    Set<Integer> memo = new HashSet<>();
+    for (var each : sample) {
+      if (each != 0 && memo.contains(each))
+        return false;
+      memo.add(each);
+    }
+    return true;
+  }
+
+  public static boolean testDuplicateCenterOf(int row, int col, int value, int[][] origin) {
+    boolean ret = true;
+    int[][] safeArea = origin.clone();
+    safeArea[row][col] = value;
+    // rows,
+    var line = safeArea[row];
+    ret = ret && hasDuplicateExceptZero(line);
+    // cols,
+    var transposed = transpose(safeArea);
+    line = transposed[col];
+    ret = ret && hasDuplicateExceptZero(line);
+    // 3x3 box
+    Pair<Integer, Integer> idx2d = Const2580.getStartIndex(row, col);
+    int[] box = get3x3StartWith(idx2d.first, idx2d.second, safeArea);
+    ret = ret && hasDuplicateExceptZero(box);
+
+    safeArea[row][col] = 0;
+    return ret;
+  }
+
 }
 
 class SudokuStringConverter {
@@ -97,4 +193,32 @@ class SudokuStringConverter {
 
 class Const2580 {
   public static final int LEN = 9;
+
+  public static Pair<Integer, Integer> getStartIndex(int row, int col) {
+    Function<Integer, Integer> criterion = (Integer e) -> {
+      int ret = 0;
+      if (e < 3)
+        ret = 0;
+      if (3 <= e && e < 6)
+        ret = 3;
+      if (6 <= e)
+        ret = 6;
+      return ret;
+    };
+    return Pair.of(criterion.apply(row), criterion.apply(col));
+  }
+}
+
+class Pair<A, B> {
+  public A first;
+  public B second;
+
+  private Pair(A first, B second) {
+    this.first = first;
+    this.second = second;
+  }
+
+  public static <T, U> Pair<T, U> of(T first, U second) {
+    return new Pair<>(first, second);
+  }
 }
