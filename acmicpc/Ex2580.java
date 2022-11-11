@@ -57,6 +57,7 @@ class Solver2580 {
       }
       if (!isPossible) {
         // revert last element into zero
+        // TODO: 무한루프 발생
         top--;
         var pair2 = zeros.get(top);
         var r2 = pair2.first;
