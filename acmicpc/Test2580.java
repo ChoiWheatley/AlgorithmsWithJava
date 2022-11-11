@@ -65,6 +65,12 @@ public class Test2580 {
   }
 
   @Test
+  public void validationTest2() {
+    int[][] sampleArr = SudokuStringConverter.convert(sampleStr);
+    assertEquals(false, Solver2580.validate(sampleArr));
+  }
+
+  @Test
   public void get3x3Test() {
     int[][] sampleArr = SudokuStringConverter.convert(answerStr);
     var start0x0 = new int[] { 1, 3, 5, 7, 8, 2, 4, 6, 9 };
@@ -89,8 +95,10 @@ public class Test2580 {
   }
 
   @Test
-  public void validationTest2() {
+  public void solve1() {
     int[][] sampleArr = SudokuStringConverter.convert(sampleStr);
-    assertEquals(false, Solver2580.validate(sampleArr));
+    assertEquals(true,
+        Solver2580.validate(
+            Solver2580.solve(sampleArr)));
   }
 }
