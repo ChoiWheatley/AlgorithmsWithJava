@@ -86,6 +86,15 @@ class Solver2580 {
         return false;
     }
     // every 3x3 boxes
+    for (int i = 0; i < 9; i += 3) {
+      for (int j = 0; j < 9; j += 3) {
+        var rowcol = Const2580.getStartIndex(i, j);
+        int[] box = get3x3StartWith(rowcol.first, rowcol.second, sudoku);
+        if (!checkOne2Nine(IntStream.of(box))) {
+          return false;
+        }
+      }
+    }
     return true;
   }
 
