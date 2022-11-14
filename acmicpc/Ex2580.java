@@ -47,8 +47,8 @@ class Solver2580 {
       int r = pair.first;
       int c = pair.second;
       boolean isPossible = false;
-      int sample = 1;
-      for (sample = 1; sample <= 9; ++sample) {
+      for (int sample = ret[r][c] + 1; sample <= Const2580.LEN; ++sample) {
+        assert sample <= Const2580.LEN;
         if (testDuplicateCenterOf(r, c, sample, ret)) {
           ret[r][c] = sample;
           isPossible = true;
@@ -58,11 +58,19 @@ class Solver2580 {
       if (!isPossible) {
         // revert last element into zero
         // TODO: 무한루프 발생
+        // TODO: IndexOutOfBound 예외 발생
+        ret[r][c] = 0;
         top--;
-        var pair2 = zeros.get(top);
-        var r2 = pair2.first;
-        var c2 = pair2.second;
-        ret[r2][c2] = 0;
+        assert top >= 0;
+        try {
+          var pair2 = zeros.get(top);
+          var r2 = pair2.first;
+          var c2 = pair2.second;
+          ret[r2][c2]++;
+        } catch (IndexOutOfBoundsException e) {
+          e.printStackTrace();
+          System.exit(1);
+        }
       } else {
         top++;
       }
@@ -101,7 +109,11 @@ class Solver2580 {
   public static boolean checkOne2Nine(IntStream stream) {
     boolean[] checklist = new boolean[10];
     checklist[0] = true; // not used
-    stream.forEach(e -> checklist[e] = true);
+    try {
+      stream.forEach(e -> checklist[e] = true);
+    } catch (IndexOutOfBoundsException e) {
+      return false;
+    }
     for (boolean each : checklist) {
       if (!each)
         return false;
@@ -130,8 +142,15 @@ class Solver2580 {
     int cnt = 0;
     for (int rowCnt = 0; rowCnt < 3; ++rowCnt) {
       for (int colCnt = 0; colCnt < 3; ++colCnt) {
-        var sample = origin[row + rowCnt][col + colCnt];
-        ret[cnt++] = sample;
+        try {
+          int r = row + rowCnt;
+          int c = col + colCnt;
+          var sample = origin[r][c];
+          ret[cnt++] = sample;
+        } catch (IndexOutOfBoundsException e) {
+          e.printStackTrace();
+          System.exit(1);
+        }
       }
     }
     return ret;
@@ -161,21 +180,25 @@ class Solver2580 {
 
   public static boolean testDuplicateCenterOf(int row, int col, int value, int[][] origin) {
     boolean ret = true;
-    int[][] safeArea = origin.clone();
-    safeArea[row][col] = value;
-    // rows,
-    var line = safeArea[row];
-    ret = ret && hasDuplicateExceptZero(line);
-    // cols,
-    var transposed = transpose(safeArea);
-    line = transposed[col];
-    ret = ret && hasDuplicateExceptZero(line);
-    // 3x3 box
-    Pair<Integer, Integer> idx2d = Const2580.getStartIndex(row, col);
-    int[] box = get3x3StartWith(idx2d.first, idx2d.second, safeArea);
-    ret = ret && hasDuplicateExceptZero(box);
+    try {
+      int[][] safeArea = origin.clone();
+      safeArea[row][col] = value;
+      // rows,
+      var line = safeArea[row];
+      ret = ret && hasDuplicateExceptZero(line);
+      // cols,
+      var transposed = transpose(safeArea);
+      line = transposed[col];
+      ret = ret && hasDuplicateExceptZero(line);
+      // 3x3 box
+      Pair<Integer, Integer> idx2d = Const2580.getStartIndex(row, col);
+      int[] box = get3x3StartWith(idx2d.first, idx2d.second, safeArea);
+      ret = ret && hasDuplicateExceptZero(box);
 
-    safeArea[row][col] = 0;
+      safeArea[row][col] = 0;
+    } catch (IndexOutOfBoundsException e) {
+      return false;
+    }
     return ret;
   }
 

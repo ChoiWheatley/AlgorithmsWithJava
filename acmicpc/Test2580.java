@@ -1,9 +1,8 @@
 package acmicpc;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
-import java.util.Arrays;
 import java.util.stream.IntStream;
 
 import org.junit.Test;
@@ -57,12 +56,14 @@ public class Test2580 {
     assertEquals(false, Solver2580.checkOne2Nine(stream3));
     var stream4 = IntStream.of(1, 3, 5, 4, 6, 9, 2, 7, 8);
     assertEquals(true, Solver2580.checkOne2Nine(stream4));
+    var stream5 = IntStream.of(1, 2, 3, 4, 5, 6, 7, 8, 10);
+    assertEquals(false, Solver2580.checkOne2Nine(stream5));
   }
 
   @Test
   public void validationTest() {
-    int[][] sampleArr = SudokuStringConverter.convert(sampleStr);
-    assertEquals(true, Solver2580.validate(sampleArr));
+    int[][] answerArr = SudokuStringConverter.convert(answerStr);
+    assertEquals(true, Solver2580.validate(answerArr));
   }
 
   @Test
