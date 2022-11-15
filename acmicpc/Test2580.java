@@ -116,12 +116,7 @@ public class Test2580 {
   public void solve1() {
     int[][] sampleArr = SudokuStringConverter.convert(sampleStr);
     int[][] submit = Solver2580.solve(sampleArr);
-    for (int i = 0; i < submit.length; ++i) {
-      for (int j = 0; j < submit[i].length; ++j) {
-        System.out.printf("%d ", submit[i][j]);
-      }
-      System.out.println();
-    }
+    Solver2580.print(submit);
     assertEquals(true, Solver2580.validate(submit));
   }
 
@@ -129,11 +124,6 @@ public class Test2580 {
   public void timeoutTest() {
     int[][] sampleArr = new int[Const2580.LEN][Const2580.LEN];
     int[][] submit = Solver2580.solve(sampleArr);
-    for (int i = 0; i < submit.length; ++i) {
-      for (int j = 0; j < submit[i].length; ++j) {
-        System.out.printf("%d ", submit[i][j]);
-      }
-      System.out.println();
-    }
+    Solver2580.print(submit);
   }
 }
