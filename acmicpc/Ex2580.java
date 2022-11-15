@@ -59,33 +59,37 @@ final class Solver2580 {
   private boolean dfs(RowCol position) {
     var row = position.row();
     var col = position.col();
-    if (row > Const2580.ID_MAX &&
-        col > Const2580.ID_MAX) {
+    if (row >= Const2580.ID_MAX ||
+        col >= Const2580.ID_MAX) {
       return true;
     }
-    // 지금 위치의 row check, col check, square check이 모두 미등록 상태라면
     var current = sudoku[row][col];
-    if (rowChecker.test(row, current) == false &&
-        colChecker.test(col, current) == false &&
-        squareChecker.test(Const2580.getSquareId(row, col), current) == false) {
+    // test start
+    if (current == 0) {
       // 이제부터 1 ~ 9 다 실험해본다.
       for (int num = 1; num <= Const2580.ID_MAX; ++num) {
-        rowChecker.register(row, num);
-        colChecker.register(col, num);
-        squareChecker.register(Const2580.getSquareId(row, col), num);
-        // do recursion
-        if (dfs(position.next())) {
-          return true;
+        if (rowChecker.isRegistered(row, num) == false &&
+            colChecker.isRegistered(col, num) == false &&
+            squareChecker.isRegistered(Const2580.getSquareId(row, col), num) == false) {
+          rowChecker.register(row, num);
+          colChecker.register(col, num);
+          squareChecker.register(Const2580.getSquareId(row, col), num);
+          sudoku[row][col] = num;
+          // do recursion
+          if (dfs(position.next())) {
+            return true;
+          }
+          // 틀린 경우, 원상복귀 후 새 num으로 다시시도
+          rowChecker.deregister(row, num);
+          colChecker.deregister(col, num);
+          squareChecker.deregister(Const2580.getSquareId(row, col), num);
+          sudoku[row][col] = 0;
         }
-        // 틀린 경우, 원상복귀 후 새 num으로 다시시도
-        rowChecker.deregister(row, num);
-        colChecker.deregister(col, num);
-        squareChecker.deregister(Const2580.getSquareId(row, col), num);
       }
       // 여기까지 왔다면 이 경우 해결할 수 없는 문제임.
       return false;
     }
-    // 이미 등록된 상태인 경우 (ex. 초기 스도쿠, 방문한 경우) 다음 위치로 가야지
+    // else
     return dfs(position.next());
   }
 
@@ -93,9 +97,9 @@ final class Solver2580 {
     this.rowChecker = new SudokuChecker();
     this.colChecker = new SudokuChecker();
     this.squareChecker = new SudokuChecker();
-    this.sudoku = new int[unfinished.length][];
-    for (int i = 0; i < unfinished.length; ++i) {
-      for (int j = 0; j < unfinished[i].length; ++j) {
+    this.sudoku = new int[Const2580.ID_MAX][Const2580.ID_MAX];
+    for (int i = 0; i < Const2580.ID_MAX; ++i) {
+      for (int j = 0; j < Const2580.ID_MAX; ++j) {
         this.sudoku[i][j] = unfinished[i][j];
       }
     }
@@ -111,11 +115,11 @@ class SudokuStringConverter {
 
   public static int[][] convert(String[] lines) {
     int[][] ret = new int[Const2580.ID_MAX][Const2580.ID_MAX];
-    for (int row = 0; row < lines.length; ++row) {
+    for (int row = 0; row < Const2580.ID_MAX; ++row) {
       String line = lines[row];
       String[] splitted = line.split(" ");
       int[] converted = Stream.of(splitted).mapToInt(Integer::valueOf).toArray();
-      for (int col = 0; col < converted.length; ++col) {
+      for (int col = 0; col < Const2580.ID_MAX; ++col) {
         ret[row][col] = converted[col];
       }
     }
@@ -151,9 +155,9 @@ class Const2580 {
       if (e < 3)
         ret = 0;
       if (3 <= e && e < 6)
-        ret = 3;
+        ret = 1;
       if (6 <= e)
-        ret = 6;
+        ret = 2;
       return ret;
     };
     int r = criterion.apply(row);
@@ -194,30 +198,30 @@ final class RowCol extends Pair<Integer, Integer> {
   }
 
   public RowCol next() {
-    int nextRow = this.first;
-    int nextCol = this.second;
-    if (this.second + 1 > Const2580.ID_MAX)
+    int nextRow = row();
+    int nextCol = col();
+    if (col() + 1 >= Const2580.ID_MAX) {
       nextRow++;
-    else
+      nextCol = 0;
+    } else {
       nextCol++;
+    }
     return new RowCol(nextRow, nextCol);
   }
 }
 
 class SudokuChecker {
-  public static final int ID_MAX = 9;
-
-  private int[] checkList;
+  private boolean[][] checkList = new boolean[Const2580.ID_MAX + 1][Const2580.ID_MAX + 1];
 
   public void register(int id, int num) {
-    checkList[id] = num;
+    checkList[id][num] = true;
   }
 
   public void deregister(int id, int num) {
-    checkList[id] = 0;
+    checkList[id][num] = false;
   }
 
-  public boolean test(int id, int num) {
-    return checkList[id] != 0;
+  public boolean isRegistered(int id, int num) {
+    return checkList[id][num];
   }
 }
