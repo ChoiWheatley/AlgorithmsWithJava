@@ -16,6 +16,16 @@ public class Test17144 {
 
   private int maxCol = 3;
 
+  private int[][] sampleRawDatas = new int[][] {
+      { 0, 0, 0, 0, 0, 0, 0, 9 },
+      { 0, 0, 0, 0, 3, 0, 0, 8 },
+      { -1, 0, 5, 0, 0, 0, 22, 0 },
+      { -1, 8, 0, 0, 0, 0, 0, 0 },
+      { 0, 0, 0, 0, 0, 10, 43, 0 },
+      { 0, 0, 5, 0, 15, 0, 0, 0 },
+      { 0, 0, 40, 0, 0, 0, 20, 0 },
+  };
+
   @Test
   public void purifierIndicesTest() {
     int maxRow = 7;
@@ -203,6 +213,59 @@ public class Test17144 {
   }
 
   @Test
+  public void dustSpread3_withPurifier() {
+    /**
+     * before
+     * 0 30 7
+     * -1 10 0
+     * -1 0 20
+     * after
+     * 6 15 11
+     * -1 10 7
+     * -1 6 12
+     */
+    Cell[][] cells = new Cell[][] {
+        {
+            new Dust(0, 0, maxRow, maxCol, 0),
+            new Dust(0, 1, maxRow, maxCol, 30),
+            new Dust(0, 2, maxRow, maxCol, 7),
+        },
+        {
+            new Purifier(1, 0, maxRow, maxCol, true),
+            new Dust(1, 1, maxRow, maxCol, 10),
+            new Dust(1, 2, maxRow, maxCol, 0),
+        },
+        {
+            new Purifier(2, 0, maxRow, maxCol, true),
+            new Dust(2, 1, maxRow, maxCol, 0),
+            new Dust(2, 2, maxRow, maxCol, 20),
+        },
+    };
+    int[][] answer = new int[][] {
+        { 6, 15, 11 },
+        { 0, 10, 7 },
+        { 0, 6, 12 }
+    };
+
+    int[][] sum = new int[maxRow][maxCol];
+    for (var rows : cells) {
+      for (Cell cell : rows) {
+        if (cell instanceof Dust) {
+          ((Dust) cell).spread(cells, sum);
+        }
+      }
+    }
+    for (int i = 0; i < maxRow; ++i) {
+      for (int j = 0; j < maxCol; ++j) {
+        cells[i][j].setAmount(cells[i][j].getAmount() + sum[i][j]);
+      }
+    }
+
+    int[][] submit = collect(cells);
+    assertArrayEquals(answer, submit);
+  }
+
+  @Test
   public void purifyTest() {
     /**
      * ccw 기준
@@ -250,10 +313,22 @@ public class Test17144 {
     assertArrayEquals(answer, submit);
   }
 
+  @Test
+  public void factoryTest1() {
+    try {
+      AbstractCellFactory factory = new ConcreteCellFactory(sampleRawDatas);
+    } catch (Exception e) {
+      e.printStackTrace();
+      System.exit(1);
+    }
+  }
+
   private int[][] collect(Cell[][] cells) {
-    int[][] ret = new int[maxRow][maxCol];
-    for (int i = 0; i < maxRow; ++i) {
-      for (int j = 0; j < maxCol; ++j) {
+    int row = cells.length;
+    int col = cells[0].length;
+    int[][] ret = new int[row][col];
+    for (int i = 0; i < row; ++i) {
+      for (int j = 0; j < col; ++j) {
         ret[i][j] = cells[i][j].getAmount();
       }
     }

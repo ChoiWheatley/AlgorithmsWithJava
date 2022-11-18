@@ -94,7 +94,7 @@ abstract class AbstractCellFactory {
     purifiers = new ArrayList<>(2);
     dusts = new ArrayList<>(maxRow * maxCol);
 
-    boolean isCCW = false;
+    boolean isCCW = true;
     for (int i = 0; i < maxRow; ++i) {
       for (int j = 0; j < maxCol; ++j) {
         Cell cell = null;
@@ -104,7 +104,9 @@ abstract class AbstractCellFactory {
           cell = p;
           isCCW = !isCCW;
         } else {
-          // TODO: Dust init
+          Dust d = new Dust(i, j, maxRow, maxCol, arr[i][j]);
+          dusts.add(d);
+          cell = d;
         }
         cells[i][j] = cell;
       }
@@ -142,12 +144,16 @@ class ConcreteCellFactory extends AbstractCellFactory {
   /**
    * purifiers는 오직 두개여야 한다.
    * 두 개의 purifiers는 각각 CCW, CW 속성을 가지고 있어야 한다.
+   * 모든 purifiers의 col은 0이어야 한다.
+   * purifiers는 위 아래로 붙어있어야 한다.
    */
   @Override
   public boolean validatePurifiers() {
     if (purifiers.size() == 2 &&
         purifiers.get(0).isCCW == true &&
-        purifiers.get(1).isCCW == false) {
+        purifiers.get(1).isCCW == false &&
+        purifiers.stream().anyMatch(e -> e.col() == 0) &&
+        purifiers.get(1).row() - purifiers.get(2).row() == 1) {
       return true;
     }
     return false;
@@ -180,6 +186,8 @@ interface Cell {
   public int getAmount();
 
   public void setAmount(int amount);
+
+  public boolean isSpreadable();
 }
 
 class Purifier implements Cell {
@@ -321,6 +329,11 @@ class Purifier implements Cell {
   public void setAmount(int amount) {
     // do nothing
   }
+
+  @Override
+  public boolean isSpreadable() {
+    return false;
+  }
 }
 
 class Dust implements Cell {
@@ -358,32 +371,34 @@ class Dust implements Cell {
   /**
    * 이 코드 안에선 sum만 변경한다. 인접 셀들의 값을 직접 바꾸지 않고 sum에 값을 추가하기만 한다.
    * 빼앗긴 미세먼지의 양도 sum에 적용한다.
-   * 
-   * @param arr
-   * @param sum
+   * <h1>공기청정기 자리는 퍼지지 않는다.</h1>
    */
   public void spread(Cell[][] arr, int[][] sum) {
     if (getAmount() <= 0) {
       return;
     }
+    int count = 0;
     for (Idx2D index : indices) {
       int r = index.row();
       int c = index.col();
-      sum[r][c] += getSpreadAmount();
+      if (arr[r][c].isSpreadable()) {
+        count++;
+        sum[r][c] += getSpreadAmount();
+      }
     }
-    sum[this.row()][this.col()] -= getTakedAmount();
+    sum[this.row()][this.col()] -= getTakedAmount(count);
   }
 
   public int getSpreadAmount() {
     return getAmount() / 5;
   }
 
-  public int getRemainAmount() {
-    return getAmount() - (getAmount() / 5) * indices.size();
+  public int getRemainAmount(int count) {
+    return getAmount() - (getAmount() / 5) * count;
   }
 
-  public int getTakedAmount() {
-    return (getAmount() / 5) * indices.size();
+  public int getTakedAmount(int count) {
+    return (getAmount() / 5) * count;
   }
 
   private final Idx2D index;
@@ -429,6 +444,11 @@ class Dust implements Cell {
       ret.add(Idx2D.of(row + 1, col));
     }
     return ret;
+  }
+
+  @Override
+  public boolean isSpreadable() {
+    return true;
   }
 
 }
