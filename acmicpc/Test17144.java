@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 
 import org.junit.Test;
 
@@ -74,6 +75,69 @@ public class Test17144 {
   }
 
   @Test
+  public void dustIndicesTest() {
+    int maxRow = 3;
+    int maxCol = 3;
+
+    Idx2D idx = Idx2D.of(0, 0);
+    Idx2D[] answer = new Idx2D[] { Idx2D.of(0, 1), Idx2D.of(1, 0) };
+    var dust = new DustTest(idx, maxRow, maxCol, 0);
+    assertArrayEquals(answer, dust.getIndices().toArray(Idx2D[]::new));
+
+    idx = Idx2D.of(0, 1);
+    answer = new Idx2D[] { Idx2D.of(0, 0), Idx2D.of(0, 2), Idx2D.of(1, 1) };
+    dust = new DustTest(idx, maxRow, maxCol, 0);
+    assertArrayEquals(answer, dust.getIndices().toArray(Idx2D[]::new));
+
+    idx = Idx2D.of(0, 2);
+    answer = new Idx2D[] { Idx2D.of(0, 1), Idx2D.of(1, 2) };
+    dust = new DustTest(idx, maxRow, maxCol, 0);
+    assertArrayEquals(answer, dust.getIndices().toArray(Idx2D[]::new));
+
+    idx = Idx2D.of(1, 0);
+    answer = new Idx2D[] { Idx2D.of(0, 0), Idx2D.of(1, 1), Idx2D.of(2, 0) };
+    dust = new DustTest(idx, maxRow, maxCol, 0);
+    assertArrayEquals(answer, dust.getIndices().toArray(Idx2D[]::new));
+
+    idx = Idx2D.of(1, 1);
+    answer = new Idx2D[] { Idx2D.of(0, 1), Idx2D.of(1, 0), Idx2D.of(1, 2), Idx2D.of(2, 1) };
+    dust = new DustTest(idx, maxRow, maxCol, 0);
+    assertArrayEquals(answer, dust.getIndices().toArray(Idx2D[]::new));
+
+    idx = Idx2D.of(1, 2);
+    answer = new Idx2D[] { Idx2D.of(0, 2), Idx2D.of(1, 1), Idx2D.of(2, 2), };
+    dust = new DustTest(idx, maxRow, maxCol, 0);
+    assertArrayEquals(answer, dust.getIndices().toArray(Idx2D[]::new));
+
+    idx = Idx2D.of(2, 0);
+    answer = new Idx2D[] { Idx2D.of(1, 0), Idx2D.of(2, 1), };
+
+    idx = Idx2D.of(2, 1);
+    answer = new Idx2D[] { Idx2D.of(1, 1), Idx2D.of(2, 0), Idx2D.of(2, 2) };
+
+    idx = Idx2D.of(2, 2);
+    answer = new Idx2D[] { Idx2D.of(1, 2), Idx2D.of(2, 1), };
+  }
+
+  @Test
+  public void dustSpread() {
+    int maxRow = 3;
+    int maxCol = 3;
+    Cell[][] matrix = new Dust[maxRow][maxCol];
+    for (int i = 0; i < maxRow; ++i) {
+      for (int j = 0; j < maxCol; ++j) {
+        matrix[i][j] = new Dust(i, j, maxRow, maxCol, 0);
+      }
+    }
+    matrix[1][1].setAmount(10);
+    /**
+     * 0 0 0
+     * 0 10 0
+     * 0 0 0
+     */
+  }
+
+  @Test
   public void purifyTest() {
     /**
      * ccw 기준
@@ -104,4 +168,15 @@ class PurifierTest extends Purifier {
     return super.indices;
   }
 
+}
+
+class DustTest extends Dust {
+
+  public DustTest(Idx2D index, int maxRow, int maxCol, int amount) {
+    super(index, maxRow, maxCol, amount);
+  }
+
+  public List<Idx2D> getIndices() {
+    return super.indices;
+  }
 }

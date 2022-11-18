@@ -3,6 +3,8 @@ package acmicpc;
 import java.util.ArrayList;
 import java.util.List;
 
+import acmicpc.AbstractCellFactory.InvalidPurifiers;
+
 public class Ex17144 {
   public static void main(String[] args) {
 
@@ -13,6 +15,62 @@ class Solver17144 {
 
 }
 
+class Room {
+  public final int maxRow;
+  public final int maxCol;
+
+  private Cell[][] cells;
+  private List<Dust> dusts;
+  private List<Purifier> purifiers;
+  private int[][] cachedState;
+  private boolean cached = false;
+
+  public Room(AbstractCellFactory factory) {
+    cells = factory.cells;
+    dusts = factory.dusts;
+    purifiers = factory.purifiers;
+    maxRow = cells.length;
+    maxCol = cells[0].length;
+    cachedState = new int[maxRow][maxCol];
+  }
+
+  public int[][] getCurrentState() {
+    if (cached) {
+      return cachedState;
+    }
+    // Do get current state
+    for (int i = 0; i < maxRow; ++i) {
+      for (int j = 0; j < maxCol; ++j) {
+        cachedState[i][j] = cells[i][j].getAmount();
+      }
+    }
+    cached = true;
+    return cachedState;
+  }
+
+  public void spread() {
+    int[][] sum = new int[maxRow][maxCol];
+    // 모든 Dust들을 순회하며 sum을 쌓는다.
+    dusts.forEach(e -> e.spread(cells, sum));
+    // sum을 한 번에 적용한다.
+    dusts.forEach(e -> {
+      int r = e.row();
+      int c = e.col();
+      var targetAmount = e.getAmount() + sum[r][c];
+      e.setAmount(targetAmount);
+    });
+    cached = false;
+  }
+
+  public void purify() {
+    purifiers.forEach(e -> e.purify(cells));
+    cached = false;
+  }
+}
+
+/**
+ * 엄밀히 말하면 팩토리가 아니긴 한데... 뭐라고 불러야 하지?
+ */
 abstract class AbstractCellFactory {
   public class ValidationFailure extends Exception {
   }
@@ -23,9 +81,9 @@ abstract class AbstractCellFactory {
   public class InvalidDusts extends ValidationFailure {
   }
 
-  Cell[][] cells;
-  List<Purifier> purifiers;
-  List<Dust> dusts;
+  public Cell[][] cells;
+  public List<Purifier> purifiers;
+  public List<Dust> dusts;
   public final int maxRow;
   public final int maxCol;
 
@@ -295,19 +353,34 @@ class Dust implements Cell {
   }
 
   /**
-   * 확산되는 양: amount / 5
-   * 남은 먼지의 양: amount - (amouont / 5) * indices.size()
+   * 이 코드 안에선 sum만 변경한다. 인접 셀들의 값을 직접 바꾸지 않고 sum에 값을 추가하기만 한다.
+   * 빼앗긴 미세먼지의 양도 sum에 적용한다.
+   * 
+   * @param arr
+   * @param sum
    */
-  public void spread(Cell[][] arr) {
-    int spreadAmount = getAmount() / 5;
-    int remainAmount = getAmount() - (spreadAmount & indices.size());
+  public void spread(Cell[][] arr, int[][] sum) {
+    if (getAmount() <= 0) {
+      return;
+    }
     for (Idx2D index : indices) {
       int r = index.row();
       int c = index.col();
-      int targetAmount = arr[r][c].getAmount() + spreadAmount;
-      arr[r][c].setAmount(targetAmount);
+      sum[r][c] += getSpreadAmount();
     }
-    this.setAmount(remainAmount);
+    sum[this.row()][this.col()] -= getTakedAmount();
+  }
+
+  public int getSpreadAmount() {
+    return getAmount() / 5;
+  }
+
+  public int getRemainAmount() {
+    return getAmount() - (getAmount() / 5) * indices.size();
+  }
+
+  public int getTakedAmount() {
+    return (getAmount() / 5) * indices.size();
   }
 
   private final Idx2D index;
