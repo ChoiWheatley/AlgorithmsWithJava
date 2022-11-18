@@ -11,6 +11,8 @@ import java.util.function.Function;
 
 import org.junit.Test;
 
+import acmicpc.AbstractCellFactory.ValidationFailure;
+
 public class Test17144 {
   private int maxRow = 3;
 
@@ -321,6 +323,46 @@ public class Test17144 {
       e.printStackTrace();
       System.exit(1);
     }
+  }
+
+  @Test
+  public void roomTest1() throws ValidationFailure {
+    AbstractCellFactory factory = new ConcreteCellFactory(sampleRawDatas);
+    Room room = new Room(factory);
+    int[][] answer = new int[][] {
+        { 0, 0, 0, 0, 0, 0, 0, 9 },
+        { 0, 0, 0, 0, 3, 0, 0, 8 },
+        { 0, 0, 5, 0, 0, 0, 22, 0 },
+        { 0, 8, 0, 0, 0, 0, 0, 0 },
+        { 0, 0, 0, 0, 0, 10, 43, 0 },
+        { 0, 0, 5, 0, 15, 0, 0, 0 },
+        { 0, 0, 40, 0, 0, 0, 20, 0 },
+    };
+    assertArrayEquals(answer, room.getCurrentState());
+
+    room.spread();
+    answer = new int[][] {
+        { 0, 0, 0, 0, 0, 0, 1, 8 },
+        { 0, 0, 1, 0, 3, 0, 5, 6 },
+        { 0, 2, 1, 1, 0, 4, 6, 5 },
+        { 0, 5, 2, 0, 0, 2, 12, 0 },
+        { 0, 1, 1, 0, 5, 10, 13, 8 },
+        { 0, 1, 9, 4, 3, 5, 12, 0 },
+        { 0, 8, 17, 8, 3, 4, 8, 4 }
+    };
+    assertArrayEquals(answer, room.getCurrentState());
+
+    room.purify();
+    answer = new int[][] {
+        { 0, 0, 0, 0, 0, 1, 8, 6 },
+        { 0, 0, 1, 0, 3, 0, 5, 5 },
+        { 0, 0, 2, 1, 1, 0, 4, 6 },
+        { 0, 0, 5, 2, 0, 0, 2, 12 },
+        { 0, 1, 1, 0, 5, 10, 13, 0 },
+        { 0, 1, 9, 4, 3, 5, 12, 8 },
+        { 8, 17, 8, 3, 4, 8, 4, 0 },
+    };
+    assertArrayEquals(answer, room.getCurrentState());
   }
 
   private int[][] collect(Cell[][] cells) {

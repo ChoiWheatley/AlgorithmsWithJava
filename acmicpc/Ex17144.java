@@ -1,16 +1,65 @@
 package acmicpc;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
+
+import acmicpc.AbstractCellFactory.ValidationFailure;
 
 public class Ex17144 {
   public static void main(String[] args) {
+    try (var br = new BufferedReader(new InputStreamReader(System.in));
+        var bw = new BufferedWriter(new OutputStreamWriter(System.out))) {
+      String line = br.readLine();
+      int[] ints = Stream.of(line.split(" ")).mapToInt(Integer::valueOf).toArray();
+      int row = ints[0];
+      int col = ints[1];
+      int time = ints[2];
 
+      int[][] rawData = new int[row][];
+      for (int i = 0; i < row; ++i) {
+        line = br.readLine();
+        ints = Stream.of(line.split(" ")).mapToInt(Integer::valueOf).toArray();
+        rawData[i] = ints;
+      }
+
+      bw.write(Solver17144.solve(rawData, time) + "\n");
+
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
   }
 }
 
 class Solver17144 {
-
+  public static int solve(int[][] rawData, int time) {
+    try {
+      var factory = new ConcreteCellFactory(rawData);
+      var room = new Room(factory);
+      while (time > 0) {
+        room.spread();
+        room.purify();
+        time--;
+      }
+      int[][] matrix = room.getCurrentState();
+      int sum = 0;
+      for (var rows : matrix) {
+        for (var e : rows) {
+          sum += e;
+        }
+      }
+      return sum;
+    } catch (ValidationFailure e) {
+      e.printStackTrace();
+      System.exit(1);
+    }
+    return 0;
+  }
 }
 
 class Room {
@@ -151,7 +200,7 @@ class ConcreteCellFactory extends AbstractCellFactory {
         purifiers.get(0).isCCW == true &&
         purifiers.get(1).isCCW == false &&
         purifiers.stream().anyMatch(e -> e.col() == 0) &&
-        purifiers.get(1).row() - purifiers.get(2).row() == 1) {
+        purifiers.get(1).row() - purifiers.get(0).row() == 1) {
       return true;
     }
     return false;
