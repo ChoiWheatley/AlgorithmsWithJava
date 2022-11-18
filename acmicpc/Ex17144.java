@@ -246,6 +246,9 @@ class Purifier implements Cell {
       arr[a.row()][a.col()].setAmount(
           arr[b.row()][b.col()].getAmount());
     }
+    // 마지막 칸은 공기청정기에서 나왔기 때문에 무조건 0임.
+    Idx2D last = indices.get(indices.size() - 1);
+    arr[last.row()][last.col()].setAmount(0);
   }
 
   protected static List<Idx2D> initIndices(int row, int col, int maxRow, int maxCol, boolean isCCW) {

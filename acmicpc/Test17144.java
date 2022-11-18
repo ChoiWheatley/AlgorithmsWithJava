@@ -12,6 +12,10 @@ import java.util.function.Function;
 import org.junit.Test;
 
 public class Test17144 {
+  private int maxRow = 3;
+
+  private int maxCol = 3;
+
   @Test
   public void purifierIndicesTest() {
     int maxRow = 7;
@@ -75,6 +79,26 @@ public class Test17144 {
   }
 
   @Test
+  public void purifierIndicesTest2() {
+    maxRow = 3;
+    maxCol = 4;
+    Idx2D purifierPosition = Idx2D.of(2, 0);
+    var purifier = new PurifierTest(purifierPosition, maxRow, maxCol, true);
+    Idx2D[] answer = {
+        Idx2D.of(1, 0),
+        Idx2D.of(0, 0),
+        Idx2D.of(0, 1),
+        Idx2D.of(0, 2),
+        Idx2D.of(0, 3),
+        Idx2D.of(1, 3),
+        Idx2D.of(2, 3),
+        Idx2D.of(2, 2),
+        Idx2D.of(2, 1),
+    };
+    assertArrayEquals(answer, purifier.getIndices().toArray(Idx2D[]::new));
+  }
+
+  @Test
   public void dustIndicesTest() {
     int maxRow = 3;
     int maxCol = 3;
@@ -120,21 +144,62 @@ public class Test17144 {
   }
 
   @Test
-  public void dustSpread() {
-    int maxRow = 3;
-    int maxCol = 3;
-    Cell[][] matrix = new Dust[maxRow][maxCol];
-    for (int i = 0; i < maxRow; ++i) {
-      for (int j = 0; j < maxCol; ++j) {
-        matrix[i][j] = new Dust(i, j, maxRow, maxCol, 0);
-      }
-    }
-    matrix[1][1].setAmount(10);
+  public void dustSpread1() {
     /**
+     * before
      * 0 0 0
      * 0 10 0
      * 0 0 0
+     * delta
+     * 0 2 0
+     * 2 -8 2
+     * 0 2 0
      */
+    int maxRow = 3;
+    int maxCol = 3;
+    Dust[][] dusts = initDusts(maxRow, maxCol);
+    int[][] sum = new int[maxRow][maxCol];
+    int[][] answer = new int[][] {
+        { 0, 2, 0 },
+        { 2, -8, 2 },
+        { 0, 2, 0 }
+    };
+    dusts[1][1].setAmount(10);
+    dusts[1][1].spread(dusts, sum);
+    assertEquals(0, totalSum(sum));
+    assertArrayEquals(answer, sum);
+  }
+
+  @Test
+  public void dustSpread2() {
+    /**
+     * before
+     * 1 2 3
+     * 4 5 6
+     * 7 8 9
+     * delta
+     * 
+     */
+    Dust[][] dusts = initDusts(maxRow, maxCol);
+    int[][] sum = new int[maxRow][maxCol];
+    for (int i = 0; i < maxRow; ++i) {
+      for (int j = 0; j < maxCol; ++j) {
+        dusts[i][j].setAmount(i * maxCol + j + 1);
+      }
+    }
+    for (var row : dusts) {
+      for (var dust : row) {
+        dust.spread(dusts, sum);
+      }
+    }
+    assertEquals(0, totalSum(sum));
+
+    int[][] answer = new int[][] {
+        { 0, 1, 1 },
+        { 2, -2, -1 },
+        { -1, 0, 0 }
+    };
+    assertArrayEquals(answer, sum);
   }
 
   @Test
@@ -151,6 +216,69 @@ public class Test17144 {
      * p 0 9 8
      */
     // TODO: purify() 함수 테스트하기
+    maxRow = 3;
+    maxCol = 4;
+    Purifier p = new Purifier(2, 0, maxRow, maxCol, true);
+    Cell[][] cells = new Cell[][] {
+        {
+            new Dust(0, 0, maxRow, maxCol, 2),
+            new Dust(0, 1, maxRow, maxCol, 3),
+            new Dust(0, 2, maxRow, maxCol, 4),
+            new Dust(0, 3, maxRow, maxCol, 5),
+        },
+        {
+            new Dust(1, 0, maxRow, maxCol, 1),
+            new Dust(1, 1, maxRow, maxCol, 9),
+            new Dust(1, 2, maxRow, maxCol, 9),
+            new Dust(1, 3, maxRow, maxCol, 6),
+        },
+        {
+            p,
+            new Dust(2, 1, maxRow, maxCol, 9),
+            new Dust(2, 2, maxRow, maxCol, 8),
+            new Dust(2, 3, maxRow, maxCol, 7),
+        },
+    };
+    p.purify(cells);
+
+    int[][] answer = new int[][] {
+        { 3, 4, 5, 6 },
+        { 2, 9, 9, 7 },
+        { 0, 0, 9, 8 }
+    };
+    int[][] submit = collect(cells);
+    assertArrayEquals(answer, submit);
+  }
+
+  private int[][] collect(Cell[][] cells) {
+    int[][] ret = new int[maxRow][maxCol];
+    for (int i = 0; i < maxRow; ++i) {
+      for (int j = 0; j < maxCol; ++j) {
+        ret[i][j] = cells[i][j].getAmount();
+      }
+    }
+    return ret;
+  }
+
+  /** total sum is always zero */
+  private int totalSum(int[][] sum) {
+    int totalSum = 0;
+    for (var line : sum) {
+      for (var val : line) {
+        totalSum += val;
+      }
+    }
+    return totalSum;
+  }
+
+  private Dust[][] initDusts(int maxRow, int maxCol) {
+    Dust[][] matrix = new Dust[maxRow][maxCol];
+    for (int i = 0; i < maxRow; ++i) {
+      for (int j = 0; j < maxCol; ++j) {
+        matrix[i][j] = new Dust(i, j, maxRow, maxCol, 0);
+      }
+    }
+    return matrix;
   }
 }
 
