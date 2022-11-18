@@ -13,6 +13,103 @@ class Solver17144 {
 
 }
 
+abstract class AbstractCellFactory {
+  public class ValidationFailure extends Exception {
+  }
+
+  public class InvalidPurifiers extends ValidationFailure {
+  }
+
+  public class InvalidDusts extends ValidationFailure {
+  }
+
+  Cell[][] cells;
+  List<Purifier> purifiers;
+  List<Dust> dusts;
+  public final int maxRow;
+  public final int maxCol;
+
+  public AbstractCellFactory(int[][] arr) throws ValidationFailure {
+    maxRow = arr.length;
+    maxCol = arr[0].length;
+    cells = new Cell[maxRow][maxCol];
+    purifiers = new ArrayList<>(2);
+    dusts = new ArrayList<>(maxRow * maxCol);
+
+    boolean isCCW = false;
+    for (int i = 0; i < maxRow; ++i) {
+      for (int j = 0; j < maxCol; ++j) {
+        Cell cell = null;
+        if (arr[i][j] < 0) {
+          Purifier p = new Purifier(i, j, maxRow, maxCol, isCCW);
+          purifiers.add(p);
+          cell = p;
+          isCCW = !isCCW;
+        } else {
+          // TODO: Dust init
+        }
+        cells[i][j] = cell;
+      }
+    }
+
+    // Open Close Principle :: Template Method Pattern
+    if (!validatePurifiers()) {
+      throw new InvalidPurifiers();
+    }
+
+    if (!validateDusts()) {
+      throw new InvalidDusts();
+    }
+  }
+
+  public List<Purifier> getPurifiers() {
+    return this.purifiers;
+  }
+
+  public List<Dust> getDusts() {
+    return this.dusts;
+  }
+
+  public abstract boolean validatePurifiers();
+
+  public abstract boolean validateDusts();
+}
+
+class ConcreteCellFactory extends AbstractCellFactory {
+
+  public ConcreteCellFactory(int[][] arr) throws ValidationFailure {
+    super(arr);
+  }
+
+  /**
+   * purifiers는 오직 두개여야 한다.
+   * 두 개의 purifiers는 각각 CCW, CW 속성을 가지고 있어야 한다.
+   */
+  @Override
+  public boolean validatePurifiers() {
+    if (purifiers.size() == 2 &&
+        purifiers.get(0).isCCW == true &&
+        purifiers.get(1).isCCW == false) {
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * dusts는 maxRow * maxCol - 2 여야 한다.
+   * 모든 dusts들의 amount는 음이 아닌 정수여야 한다.
+   */
+  @Override
+  public boolean validateDusts() {
+    if (dusts.size() == maxRow * maxCol - 2 &&
+        dusts.stream().anyMatch(e -> e.getAmount() >= 0)) {
+      return true;
+    }
+    return false;
+  }
+
+}
+
 interface Cell {
   public int row();
 
@@ -23,6 +120,8 @@ interface Cell {
   public int maxCol();
 
   public int getAmount();
+
+  public void setAmount(int amount);
 }
 
 class Purifier implements Cell {
@@ -76,8 +175,19 @@ class Purifier implements Cell {
     indices = initIndices(index.row(), index.col(), maxRow, maxCol, isCCW);
   }
 
+  /**
+   * 현재 Purifier는 List<Idx2D>만을 갖고 있다. 그래서 실제 Cell들의 레퍼런스를 참조해 주어야 한다.
+   * 
+   * @param arr real objects of arr
+   */
   public void purify(Cell[][] arr) {
-    // TODO
+    // 한 칸씩만 당기면 끗.
+    for (int i = 0; i < indices.size() - 1; ++i) {
+      var a = indices.get(i);
+      var b = indices.get(i + 1);
+      arr[a.row()][a.col()].setAmount(
+          arr[b.row()][b.col()].getAmount());
+    }
   }
 
   protected static List<Idx2D> initIndices(int row, int col, int maxRow, int maxCol, boolean isCCW) {
@@ -145,29 +255,107 @@ class Purifier implements Cell {
     }
     return ret;
   }
+
+  @Override
+  public void setAmount(int amount) {
+    // do nothing
+  }
 }
 
-// class Dust implements Cell {
+class Dust implements Cell {
 
-// @Override
-// public int row() {
-// // TODO Auto-generated method stub
-// return 0;
-// }
+  @Override
+  public int row() {
+    return index.row();
+  }
 
-// @Override
-// public int col() {
-// // TODO Auto-generated method stub
-// return 0;
-// }
+  @Override
+  public int col() {
+    return index.col();
+  }
 
-// @Override
-// public int getAmount() {
-// // TODO Auto-generated method stub
-// return 0;
-// }
+  @Override
+  public int getAmount() {
+    return amount;
+  }
 
-// }
+  @Override
+  public int maxRow() {
+    return maxRow;
+  }
+
+  @Override
+  public int maxCol() {
+    return this.maxCol;
+  }
+
+  @Override
+  public void setAmount(int amount) {
+    this.amount = amount;
+  }
+
+  /**
+   * 확산되는 양: amount / 5
+   * 남은 먼지의 양: amount - (amouont / 5) * indices.size()
+   */
+  public void spread(Cell[][] arr) {
+    int spreadAmount = getAmount() / 5;
+    int remainAmount = getAmount() - (spreadAmount & indices.size());
+    for (Idx2D index : indices) {
+      int r = index.row();
+      int c = index.col();
+      int targetAmount = arr[r][c].getAmount() + spreadAmount;
+      arr[r][c].setAmount(targetAmount);
+    }
+    this.setAmount(remainAmount);
+  }
+
+  private final Idx2D index;
+  private final int maxRow;
+  private final int maxCol;
+
+  protected final List<Idx2D> indices;
+
+  private int amount;
+
+  public Dust(Idx2D index, int maxRow, int maxCol, int amount) {
+    this.index = index;
+    this.maxRow = maxRow;
+    this.maxCol = maxCol;
+    this.amount = amount;
+    indices = initIndices(index.row(), index.col(), maxRow, maxCol);
+  }
+
+  public Dust(int row, int col, int maxRow, int maxCol, int amount) {
+    this.index = Idx2D.of(row, col);
+    this.maxRow = maxRow;
+    this.maxCol = maxCol;
+    this.amount = amount;
+    indices = initIndices(index.row(), index.col(), maxRow, maxCol);
+  }
+
+  private static List<Idx2D> initIndices(int row, int col, int maxRow, int maxCol) {
+    List<Idx2D> ret = new ArrayList<>(4);
+    // up
+    if (row > 0) {
+      ret.add(Idx2D.of(row - 1, col));
+    }
+    // left
+    if (col > 0) {
+      ret.add(Idx2D.of(row, col - 1));
+    }
+    // right
+    if (col < maxCol - 1) {
+      ret.add(Idx2D.of(row, col + 1));
+    }
+    // down
+    if (row < maxRow - 1) {
+      ret.add(Idx2D.of(row + 1, col));
+    }
+    return ret;
+  }
+
+}
 
 class Pair<A extends Comparable<A>, B extends Comparable<B>> implements Comparable<Pair<A, B>> {
   public final A first;
@@ -199,6 +387,10 @@ class Idx2D extends Pair<Integer, Integer> {
 
   public Idx2D(Integer row, Integer col) {
     super(row, col);
+  }
+
+  public static Idx2D of(int row, int col) {
+    return new Idx2D(row, col);
   }
 
   public Idx2D add(int row, int col) {

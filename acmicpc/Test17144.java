@@ -72,6 +72,22 @@ public class Test17144 {
 
     assertArrayEquals(answer.toArray(Idx2D[]::new), purifier.getIndices().toArray(Idx2D[]::new));
   }
+
+  @Test
+  public void purifyTest() {
+    /**
+     * ccw 기준
+     * before:
+     * 2 3 4 5
+     * 1 9 9 6
+     * p 9 8 7
+     * after:
+     * 3 4 5 6
+     * 2 9 9 7
+     * p 0 9 8
+     */
+    // TODO: purify() 함수 테스트하기
+  }
 }
 
 class PurifierTest extends Purifier {
