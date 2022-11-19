@@ -8,6 +8,8 @@ import java.io.OutputStreamWriter;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
+import useful.Pair;
+
 public class Ex2580 {
   public static void main(String[] args) throws IOException {
     var reader = new BufferedReader(new InputStreamReader(System.in));
@@ -166,19 +168,19 @@ class Const2580 {
   }
 }
 
-class Pair<A, B> {
-  public A first;
-  public B second;
+// class Pair<A, B> {
+// public A first;
+// public B second;
 
-  protected Pair(A first, B second) {
-    this.first = first;
-    this.second = second;
-  }
+// protected Pair(A first, B second) {
+// this.first = first;
+// this.second = second;
+// }
 
-  public static <T, U> Pair<T, U> of(T first, U second) {
-    return new Pair<>(first, second);
-  }
-}
+// public static <T, U> Pair<T, U> of(T first, U second) {
+// return new Pair<>(first, second);
+// }
+// }
 
 final class RowCol extends Pair<Integer, Integer> {
   private RowCol(Integer first, Integer second) {

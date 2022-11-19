@@ -8,6 +8,8 @@ import java.util.stream.IntStream;
 
 import org.junit.Test;
 
+import useful.Pair;
+
 public class Test2580 {
   public static String sampleStr = """
       0 3 5 4 6 9 2 7 8

@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
-import acmicpc.AbstractCellFactory.ValidationFailure;
+import useful.Pair;
 
 public class Ex17144 {
   public static void main(String[] args) {
@@ -54,7 +54,7 @@ class Solver17144 {
         }
       }
       return sum;
-    } catch (ValidationFailure e) {
+    } catch (AbstractCellFactory.ValidationFailure e) {
       e.printStackTrace();
       System.exit(1);
     }
@@ -500,24 +500,25 @@ class Dust implements Cell {
 
 }
 
-class Pair<A extends Comparable<A>, B extends Comparable<B>> implements Comparable<Pair<A, B>> {
-  public final A first;
-  public final B second;
+// class Pair<A extends Comparable<A>, B extends Comparable<B>> implements
+// Comparable<Pair<A, B>> {
+// public final A first;
+// public final B second;
 
-  public Pair(A a, B b) {
-    first = a;
-    second = b;
-  }
+// public Pair(A a, B b) {
+// first = a;
+// second = b;
+// }
 
-  @Override
-  public int compareTo(Pair<A, B> o) {
-    int ret = this.first.compareTo(o.first);
-    if (ret == 0) {
-      ret = this.second.compareTo(o.second);
-    }
-    return ret;
-  }
-}
+// @Override
+// public int compareTo(Pair<A, B> o) {
+// int ret = this.first.compareTo(o.first);
+// if (ret == 0) {
+// ret = this.second.compareTo(o.second);
+// }
+// return ret;
+// }
+// }
 
 class Idx2D extends Pair<Integer, Integer> {
   public int row() {
