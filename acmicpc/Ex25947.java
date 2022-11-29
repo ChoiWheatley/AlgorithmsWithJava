@@ -26,7 +26,7 @@ public class Ex25947 {
         prices[i] = Integer.valueOf(tokenizer.nextToken());
       }
 
-      int result = Solver25947Alt1.solve(prices, b, a);
+      int result = Solver25947Alt2.solve(prices, b, a);
       bw.write(result + "\n");
 
     } catch (IOException e) {
@@ -123,8 +123,6 @@ class Solver25947Alt2 {
   private int best = 0;
 
   public int recursion(int[] pricesSorted, int remainBudget, int remainCoupon, int idx, int count) {
-    if (count < best - remainCoupon)
-      return best;
     if (remainCoupon < 0)
       return count - 1;
     if (idx >= pricesSorted.length)
@@ -132,13 +130,6 @@ class Solver25947Alt2 {
     if (remainBudget < 0)
       return count - 1;
     int price = pricesSorted[idx];
-    // 쿠폰을 사용하지 않았을 때의 결과
-    int noCoupon = recursion(
-        pricesSorted,
-        remainBudget - price,
-        remainCoupon,
-        idx + 1,
-        count + 1);
 
     // 쿠폰을 사용했을 때의 결과
     int yesCoupon = recursion(
@@ -147,56 +138,50 @@ class Solver25947Alt2 {
         remainCoupon - 1,
         idx + 1,
         count + 1);
+    // 쿠폰을 사용했음에도 best가 갱신되지 않았다면
+    // 쿠폰을 사용하지 않았어도 마찬가지였을 것이다.
+    if (yesCoupon < best)
+      return best;
+    // 쿠폰을 사용하지 않았을 때의 결과
+    int noCoupon = recursion(
+        pricesSorted,
+        remainBudget - price,
+        remainCoupon,
+        idx + 1,
+        count + 1);
 
     int result = Math.max(noCoupon, yesCoupon);
     best = Math.max(best, result);
-    return result;
+    return best;
   }
 
 }
 
-/**
- * https://sites.google.com/site/hannuhelminen/next_combination
- */
-class S {
-  private final int END;
-  private final int MID;
-  private int[] indices;
-  private int[] ret;
-
-  public S(int n, int a) {
-    this.END = n;
-    this.MID = a;
-    this.indices = new int[END];
-    for (int i = 0; i < END; ++i) {
-      this.indices[i] = i;
+class Solver25947Alt3 {
+  public static int solve(int[] prices, int budget, int coupon) {
+    Arrays.sort(prices);
+    int max = 0;
+    // 맨 뒤부터 할인을 때린다. 할인한 제품을 사든 말든 알바 아님
+    for (int i = prices.length - coupon; i >= 0; --i) {
+      var saled = prices.clone();
+      for (int j = 0; j < coupon; ++j) {
+        saled[i + j] /= 2;
+      }
+      // Arrays.sort(saled);
+      // buy until budget remains nothing
+      int cnt = 0;
+      int curBudget = budget;
+      while (curBudget >= 0) {
+        curBudget -= saled[cnt];
+        cnt += 1;
+      }
+      cnt -= 1; // 하나를 더 셌으니까
+      if (cnt < max)
+        return max;
+      else
+        max = cnt;
     }
-    for (int i = 0; i < MID; ++i) {
-      ret[i] = indices[i];
-    }
-  }
 
-  public boolean hasNext() {
-    for (int i = 1; i <= MID; ++i) {
-      if (ret[MID - i] != END - i)
-        return false;
-    }
-    return true;
-  }
-
-  /**
-   * 1. search from mid backwards until you find an element that is smaller than
-   * *(end - 1). Call this `head_pos`
-   * 
-   * 2. search from end backwards until you find the last element that is still
-   * larget than *head_pos. Call this `tail_pos`
-   * 
-   * 3. swap head_pos and tail_pos. Re-order the elements from [head_pos + 1, mid]
-   */
-  public void next() {
-  }
-
-  public final int[] get() {
-    return ret;
+    return max;
   }
 }
