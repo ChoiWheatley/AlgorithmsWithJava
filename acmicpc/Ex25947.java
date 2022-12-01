@@ -187,7 +187,7 @@ class Solver25947Alt4 {
    * 
    * 2. 할인쿠폰을 사용하여 가장 많은 선물을 살 수 있는 경우를 리턴한다.
    */
-  public static int solve(long[] prices, int budget, int coupon) {
+  public static int solve(long[] prices, long budget, long coupon) {
     Arrays.sort(prices);
     // 1. 누적합
     long[] acc = new long[prices.length];
@@ -230,7 +230,7 @@ class Solver25947Alt4 {
    * = (acc[n - 1] - acc[n - coupon - 1]) / 2
    * 는 할인가로 구매한 선물들의 구간합
    */
-  public static boolean isPossible(long[] acc, int budget, int coupon, int n) {
+  public static boolean isPossible(long[] acc, long budget, long coupon, int n) {
     long sum = 0;
     if (n == 0) {
       return true;
@@ -240,9 +240,9 @@ class Solver25947Alt4 {
       sum += acc[n - 1] / 2;
     } else {
       // [0, n - coupon)
-      var unSaled = acc[n - coupon - 1];
+      var unSaled = acc[(int) (n - coupon - 1)];
       // [n - coupon, n)
-      var saled = (acc[n - 1] - acc[n - coupon - 1]) / 2;
+      var saled = (acc[n - 1] - acc[(int) (n - coupon - 1)]) / 2;
       sum = unSaled + saled;
     }
     return sum > budget ? false : true;
