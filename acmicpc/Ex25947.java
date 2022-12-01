@@ -49,10 +49,10 @@ class Solver25947 {
   public static int recursion(long[] pricesSorted, int remainBudget, int remainCoupon, int idx, int count) {
     if (remainCoupon < 0)
       return count - 1;
-    if (idx >= pricesSorted.length)
-      return count - 1;
     if (remainBudget < 0)
       return count - 1;
+    if (idx >= pricesSorted.length)
+      return count;
     int curCount = 0;
     for (int i = idx; i < pricesSorted.length; ++i) {
       var price = pricesSorted[i];
@@ -72,30 +72,30 @@ class Solver25947 {
 
 class Solver25947Alt1 {
 
-  public static int solve(long[] prices, int budget, int coupon) {
+  public static int solve(long[] prices, long budget, int coupon) {
     Arrays.sort(prices);
     return recursion(prices, budget, coupon, 0, 0);
   }
 
-  public static int recursion(long[] pricesSorted, int remainBudget, int remainCoupon, int idx, int count) {
+  public static int recursion(long[] pricesSorted, long budget, int remainCoupon, int idx, int count) {
     if (remainCoupon < 0)
       return count - 1;
+    if (budget < 0)
+      return count - 1;
     if (idx >= pricesSorted.length)
-      return count - 1;
-    if (remainBudget < 0)
-      return count - 1;
+      return count;
     var price = pricesSorted[idx];
     // 쿠폰을 사용했을 때의 결과
     int yesCoupon = recursion(
         pricesSorted,
-        remainBudget - (int) (price / 2),
+        budget - (int) (price / 2),
         remainCoupon - 1,
         idx + 1,
         count + 1);
     // 쿠폰을 사용하지 않았을 때의 결과
     int noCoupon = recursion(
         pricesSorted,
-        remainBudget - (int) price,
+        budget - (int) price,
         remainCoupon,
         idx + 1,
         count + 1);
@@ -108,26 +108,26 @@ class Solver25947Alt1 {
 
 class Solver25947Alt2 {
 
-  public static long solve(long[] prices, int budget, int coupon) {
+  public static long solve(long[] prices, long budget, long coupon) {
     Arrays.sort(prices);
     return (new Solver25947Alt2()).recursion(prices, budget, coupon, 0, 0);
   }
 
   private long best = 0;
 
-  public long recursion(long[] pricesSorted, int remainBudget, int remainCoupon, int idx, int count) {
+  public long recursion(long[] pricesSorted, long remainBudget, long remainCoupon, int idx, int count) {
     if (remainCoupon < 0)
-      return count - 1;
-    if (idx >= pricesSorted.length)
       return count - 1;
     if (remainBudget < 0)
       return count - 1;
+    if (idx >= pricesSorted.length)
+      return count;
     var price = pricesSorted[idx];
 
     // 쿠폰을 사용했을 때의 결과
     var yesCoupon = recursion(
         pricesSorted,
-        remainBudget - (int) (price / 2),
+        remainBudget - (price / 2),
         remainCoupon - 1,
         idx + 1,
         count + 1);
@@ -138,7 +138,7 @@ class Solver25947Alt2 {
     // 쿠폰을 사용하지 않았을 때의 결과
     var noCoupon = recursion(
         pricesSorted,
-        remainBudget - (int) price,
+        remainBudget - price,
         remainCoupon,
         idx + 1,
         count + 1);
@@ -151,7 +151,7 @@ class Solver25947Alt2 {
 }
 
 class Solver25947Alt3 {
-  public static int solve(long[] prices, int budget, int coupon) {
+  public static int solve(long[] prices, long budget, int coupon) {
     Arrays.sort(prices);
     int max = 0;
     // 맨 뒤부터 할인을 때린다. 할인한 제품을 사든 말든 알바 아님
@@ -163,7 +163,7 @@ class Solver25947Alt3 {
       // Arrays.sort(saled);
       // buy until budget remains nothing
       int cnt = 0;
-      int curBudget = budget;
+      var curBudget = budget;
       while (curBudget >= 0) {
         curBudget -= saled[cnt];
         cnt += 1;
@@ -216,6 +216,8 @@ class Solver25947Alt4 {
         hi = mid;
       }
     }
+    if (isPossible(acc, budget, coupon, hi))
+      return hi;
     return hi - 1;
   }
 

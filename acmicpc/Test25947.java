@@ -4,6 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Arrays;
 import java.util.Random;
+import java.util.stream.IntStream;
+import java.util.stream.LongStream;
 
 import org.junit.Test;
 import org.junit.jupiter.api.RepeatedTest;
@@ -39,17 +41,17 @@ public class Test25947 {
   @Test
   @RepeatedTest(100)
   public void correctTest() {
-    int maxPrice = 100;
+    int maxPrice = 120;
     // int maxPrice = 100_000_001;
     Random r = new Random();
-    int n = 70;
+    int n = 210;
     // int n = 100000;
     int b = r.nextInt(maxPrice + 1) + 1;
     int a = r.nextInt(n + 1);
     long[] prices = r.longs(2, maxPrice).filter(e -> e % 2 == 0).limit(n).toArray();
 
-    int answer1 = Solver25947Alt1.solve(prices, b, a);
-    // int answer2 = Solver25947Alt2.solve(prices, b, a);
+    // int answer1 = Solver25947Alt1.solve(prices, b, a);
+    int answer2 = (int) Solver25947Alt2.solve(prices, b, a);
     // int answer3 = Solver25947Alt3.solve(prices, b, a);
     int answer4 = Solver25947Alt4.solve(prices, b, a);
 
@@ -64,7 +66,7 @@ public class Test25947 {
     // budget: %d
     // coupon: %d
     // """, Arrays.toString(prices), b, a));
-    assertEquals(answer1, answer4, String.format("""
+    assertEquals(answer2, answer4, String.format("""
         prices: %s
         budget: %d
         coupon: %d
@@ -107,6 +109,45 @@ public class Test25947 {
     var answer = 2;
     int submit = Solver25947Alt4.solve(prices, budget, coupon);
     assertEquals(answer, submit);
+
+    coupon = 3;
+    submit = Solver25947Alt4.solve(prices, budget, coupon);
+    assertEquals(answer, submit);
+
+    coupon = 0;
+    answer = 1;
+    submit = Solver25947Alt4.solve(prices, budget, coupon);
+    assertEquals(answer, submit);
+  }
+
+  @Test
+  public void edgeTest4() {
+    var prices = new long[] { 1_000_000_000, 1_000_000_000, 1_000_000_000, 1_000_000_000, 1_000_000_000, };
+    var budget = 1;
+    var coupon = 5;
+    var answer = 0;
+    var submit2 = Solver25947Alt2.solve(prices, budget, coupon);
+    var submit4 = Solver25947Alt4.solve(prices, budget, coupon);
+    assertEquals(answer, submit2);
+    assertEquals(answer, submit4);
+  }
+
+  @Test
+  public void edgeTest5() {
+    var cnt = 5;
+    var prices = new long[cnt];
+    Arrays.fill(prices, 10);
+    var budget = LongStream.of(prices).sum() / 2;
+    var coupon = cnt;
+    var answer = cnt;
+    var submit1 = Solver25947Alt1.solve(prices, budget, coupon);
+    var submit2 = Solver25947Alt2.solve(prices, budget, coupon);
+    // var submit3 = Solver25947Alt3.solve(prices, budget, coupon);
+    var submit4 = Solver25947Alt4.solve(prices, budget, coupon);
+    assertEquals(answer, submit1);
+    assertEquals(answer, submit2);
+    // assertEquals(answer, submit3);
+    assertEquals(answer, submit4);
   }
 
   @Test
