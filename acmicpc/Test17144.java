@@ -13,6 +13,8 @@ import org.junit.Test;
 
 import acmicpc.AbstractCellFactory.ValidationFailure;
 
+import useful.Idx2D;
+
 public class Test17144 {
   private int maxRow = 3;
 

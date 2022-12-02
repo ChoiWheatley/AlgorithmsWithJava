@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
-import useful.Pair;
+import useful.Idx2D;
 
 public class Ex17144 {
   public static void main(String[] args) {
@@ -519,45 +519,3 @@ class Dust implements Cell {
 // return ret;
 // }
 // }
-
-class Idx2D extends Pair<Integer, Integer> {
-  public int row() {
-    return first;
-  }
-
-  public int col() {
-    return second;
-  }
-
-  public Idx2D(Integer row, Integer col) {
-    super(row, col);
-  }
-
-  public static Idx2D of(int row, int col) {
-    return new Idx2D(row, col);
-  }
-
-  public Idx2D add(int row, int col) {
-    return new Idx2D(this.row() + row, this.col() + col);
-  }
-
-  public Idx2D add(Idx2D o) {
-    return new Idx2D(this.row() + o.row(), this.col() + o.col());
-  }
-
-  public Idx2D subtract(int row, int col) {
-    return new Idx2D(this.row() - row, this.col() - col);
-  }
-
-  public Idx2D subtract(Idx2D o) {
-    return new Idx2D(this.row() - o.row(), this.col() - o.col());
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj instanceof Idx2D) {
-      return this.compareTo((Idx2D) obj) == 0;
-    }
-    return false;
-  }
-}

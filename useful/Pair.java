@@ -18,6 +18,10 @@ public class Pair<A extends Comparable<A>, B extends Comparable<B>> implements C
     return ret;
   }
 
+  public <A extends Comparable<A>, B extends Comparable<B>> boolean equals(Pair<A, B> o) {
+    return this.first == o.first && this.second == o.second;
+  }
+
   public static <A extends Comparable<A>, B extends Comparable<B>> Pair<A, B> of(A first, B second) {
     return new Pair<A, B>(first, second);
   }
