@@ -273,7 +273,7 @@ class Purifier implements Cell {
   public final boolean isCCW;
 
   public Purifier(int row, int col, int maxRow, int maxCol, boolean isCCW) {
-    this.index = new Idx2D(row, col);
+    this.index = Idx2D.of(row, col);
     this.maxRow = maxRow;
     this.maxCol = maxCol;
     this.isCCW = isCCW;
@@ -309,61 +309,61 @@ class Purifier implements Cell {
   protected static List<Idx2D> initIndices(int row, int col, int maxRow, int maxCol, boolean isCCW) {
     // initialize indices
     List<Idx2D> ret = new ArrayList<>();
-    Idx2D current = new Idx2D(row, col);
+    Idx2D current = Idx2D.of(row, col);
     if (isCCW) {
       // up
-      var next = new Idx2D(0, 0);
-      var delta = new Idx2D(-1, 0);
+      var next = Idx2D.of(0, 0);
+      var delta = Idx2D.of(-1, 0);
       while (current.compareTo(next) != 0) {
         current = current.add(delta);
         ret.add(current);
       }
       // right
-      next = new Idx2D(0, maxCol - 1);
-      delta = new Idx2D(0, 1);
+      next = Idx2D.of(0, maxCol - 1);
+      delta = Idx2D.of(0, 1);
       while (current.compareTo(next) != 0) {
         current = current.add(delta);
         ret.add(current);
       }
       // down
-      next = new Idx2D(row, maxCol - 1);
-      delta = new Idx2D(1, 0);
+      next = Idx2D.of(row, maxCol - 1);
+      delta = Idx2D.of(1, 0);
       while (current.compareTo(next) != 0) {
         current = current.add(delta);
         ret.add(current);
       }
       // left
-      next = new Idx2D(row, col + 1);
-      delta = new Idx2D(0, -1);
+      next = Idx2D.of(row, col + 1);
+      delta = Idx2D.of(0, -1);
       while (current.compareTo(next) != 0) {
         current = current.add(delta);
         ret.add(current);
       }
     } else {
       // down
-      var next = new Idx2D(maxRow - 1, 0);
-      var delta = new Idx2D(1, 0);
+      var next = Idx2D.of(maxRow - 1, 0);
+      var delta = Idx2D.of(1, 0);
       while (current.compareTo(next) != 0) {
         current = current.add(delta);
         ret.add(current);
       }
       // right
-      next = new Idx2D(maxRow - 1, maxCol - 1);
-      delta = new Idx2D(0, 1);
+      next = Idx2D.of(maxRow - 1, maxCol - 1);
+      delta = Idx2D.of(0, 1);
       while (current.compareTo(next) != 0) {
         current = current.add(delta);
         ret.add(current);
       }
       // up
-      next = new Idx2D(row, maxCol - 1);
-      delta = new Idx2D(-1, 0);
+      next = Idx2D.of(row, maxCol - 1);
+      delta = Idx2D.of(-1, 0);
       while (current.compareTo(next) != 0) {
         current = current.add(delta);
         ret.add(current);
       }
       // left
-      next = new Idx2D(row, col + 1);
-      delta = new Idx2D(0, -1);
+      next = Idx2D.of(row, col + 1);
+      delta = Idx2D.of(0, -1);
       while (current.compareTo(next) != 0) {
         current = current.add(delta);
         ret.add(current);

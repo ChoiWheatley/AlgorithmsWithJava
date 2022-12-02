@@ -17,4 +17,5 @@ public class Test14502 {
         o1 = %s
         o2 = %s""", o1 == o2);
   }
+
 }

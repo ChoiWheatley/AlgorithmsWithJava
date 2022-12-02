@@ -31,7 +31,7 @@ public class Idx2D extends Pair<Integer, Integer> {
     return cached.get(a).get(b);
   }
 
-  public Idx2D(Integer row, Integer col) {
+  private Idx2D(Integer row, Integer col) {
     super(row, col);
   }
 
