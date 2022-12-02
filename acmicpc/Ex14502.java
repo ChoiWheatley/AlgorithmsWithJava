@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Stack;
 import java.util.TreeMap;
 
@@ -44,22 +45,13 @@ final class Lab {
   public final int COL;
 
   public Lab(int row, int col) {
-    ROW = row + 2;
-    COL = col + 2;
+    ROW = row;
+    COL = col;
     lab = new Stat[ROW][COL];
     for (int i = 0; i < ROW; ++i) {
       for (int j = 0; j < COL; ++j) {
         lab[i][j] = Stat.EMPTY;
       }
-    }
-    // 바깥쪽 부분에 한 겹의 벽을 생성한다.
-    for (int j = 0; j < COL; ++j) {
-      lab[0][j] = Stat.WALL;
-      lab[ROW - 1][j] = Stat.WALL;
-    }
-    for (int i = 0; i < ROW; ++i) {
-      lab[i][0] = Stat.WALL;
-      lab[i][COL - 1] = Stat.WALL;
     }
   }
 
@@ -81,10 +73,21 @@ final class Lab {
       }
     }
     // 2
+    boolean[][] visited = new boolean[ROW][COL];
     while (!stack.isEmpty()) {
       var cursor = stack.pop();
-      if (get(cursor) == Stat.EMPTY) {
-        set(cursor, Stat.VIRUS);
+      var r = cursor.row();
+      var c = cursor.col();
+      if (r < 0 || r >= ROW ||
+          c < 0 || c >= COL)
+        continue;
+      get(cursor).ifPresent(stat -> {
+        if (stat == Stat.EMPTY) {
+          set(cursor, Stat.VIRUS);
+        }
+      });
+      if (visited[r][c] == false) {
+        visited[r][c] = true;
         stack.push(cursor.add(Direction.UP));
         stack.push(cursor.add(Direction.DOWN));
         stack.push(cursor.add(Direction.LEFT));
@@ -93,8 +96,12 @@ final class Lab {
     }
   }
 
-  public final Stat get(Idx2D idx) {
-    return lab[idx.first][idx.second];
+  public final Optional<Stat> get(Idx2D idx) {
+    if (idx.row() < 0 || idx.col() < 0 ||
+        idx.row() >= ROW || idx.col() >= COL) {
+      return Optional.empty();
+    }
+    return Optional.of(lab[idx.first][idx.second]);
   }
 
   public final Stat[][] getStatus() {
