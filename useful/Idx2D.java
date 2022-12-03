@@ -74,4 +74,9 @@ public class Idx2D extends Pair<Integer, Integer> {
   public int[] toArray() {
     return new int[] { row(), col() };
   }
+
+  @Override
+  public String toString() {
+    return "[" + row() + "," + col() + "]";
+  }
 }
