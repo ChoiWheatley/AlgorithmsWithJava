@@ -4,6 +4,9 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import static acmicpc.Solver14502.*;
+import static acmicpc.Solver14502.Lab.*;
+
 import org.junit.Test;
 
 import useful.Idx2D;
