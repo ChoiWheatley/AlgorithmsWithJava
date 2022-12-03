@@ -7,6 +7,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.Optional;
 import java.util.Stack;
+import java.util.StringTokenizer;
 import java.util.stream.Stream;
 
 import useful.Idx2D;
@@ -16,6 +17,20 @@ public class Ex14502 {
     try (var br = new BufferedReader(new InputStreamReader(System.in));
         var bw = new BufferedWriter(new OutputStreamWriter(System.out))) {
       String line = br.readLine();
+      var st = new StringTokenizer(line);
+      int n = Integer.valueOf(st.nextToken());
+      int m = Integer.valueOf(st.nextToken());
+      int[][] raw = new int[n][m];
+      for (int i = 0; i < n; ++i) {
+        line = br.readLine();
+        st = new StringTokenizer(line);
+        for (int j = 0; j < m; ++j) {
+          raw[i][j] = Integer.valueOf(st.nextToken());
+        }
+      }
+
+      int submit = Solver14502.solve(raw);
+      bw.write(submit + "\n");
 
     } catch (IOException e) {
       e.printStackTrace();

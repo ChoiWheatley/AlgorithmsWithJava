@@ -153,6 +153,33 @@ public class Test14502 {
   }
 
   @Test
+  public void edge1() {
+    var raw = new int[][] {
+        { 2, 2, 2 },
+        { 2, 2, 2 },
+        { 0, 0, 0 },
+    };
+    int answer = 0;
+    int submit = Solver14502.solve(raw);
+    assertEquals(answer, submit);
+  }
+
+  @Test
+  public void edge2() {
+    var raw = new int[][] {
+        { 0, 0, 2, 2, 2, 0, 0, },
+        { 0, 2, 0, 0, 0, 2, 0, },
+        { 0, 0, 1, 0, 1, 0, 0, },
+        { 0, 0, 1, 0, 1, 0, 0, },
+        { 0, 2, 0, 0, 0, 2, 0, },
+        { 0, 0, 2, 2, 2, 0, 0, },
+    };
+    int answer = 2;
+    int submit = Solver14502.solve(raw);
+    assertEquals(answer, submit);
+  }
+
+  @Test
   public void timeoutTest() {
     var raw = new int[8][8];
     raw[0][0] = Stat.VIRUS.ordinal();
