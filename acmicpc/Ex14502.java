@@ -78,25 +78,20 @@ final class Lab {
       var cursor = stack.pop();
       var r = cursor.row();
       var c = cursor.col();
-      if (r < 0 || r >= ROW ||
-          c < 0 || c >= COL)
-        continue;
-      get(cursor).ifPresent(stat -> {
-        if (stat == Stat.EMPTY) {
+      getStat(cursor).ifPresent(stat -> {
+        if (stat != Stat.WALL && visited[r][c] == false) {
+          visited[r][c] = true;
           set(cursor, Stat.VIRUS);
+          stack.push(cursor.add(Direction.UP));
+          stack.push(cursor.add(Direction.DOWN));
+          stack.push(cursor.add(Direction.LEFT));
+          stack.push(cursor.add(Direction.RIGHT));
         }
       });
-      if (visited[r][c] == false) {
-        visited[r][c] = true;
-        stack.push(cursor.add(Direction.UP));
-        stack.push(cursor.add(Direction.DOWN));
-        stack.push(cursor.add(Direction.LEFT));
-        stack.push(cursor.add(Direction.RIGHT));
-      }
     }
   }
 
-  public final Optional<Stat> get(Idx2D idx) {
+  public final Optional<Stat> getStat(Idx2D idx) {
     if (idx.row() < 0 || idx.col() < 0 ||
         idx.row() >= ROW || idx.col() >= COL) {
       return Optional.empty();
@@ -104,7 +99,7 @@ final class Lab {
     return Optional.of(lab[idx.first][idx.second]);
   }
 
-  public final Stat[][] getStatus() {
+  public final Stat[][] getStats() {
     return lab;
   }
 
