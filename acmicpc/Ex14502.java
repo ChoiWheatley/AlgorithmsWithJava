@@ -7,13 +7,9 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.Optional;
 import java.util.Stack;
-import java.util.function.Consumer;
-import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import useful.Idx2D;
-
-import static useful.Idx2D.Direction;
 
 public class Ex14502 {
   public static void main(String[] args) {
@@ -56,15 +52,18 @@ class Solver14502 {
 
     int best = 0;
 
-    // set up wall
-    lab.set(idx, Stat.WALL);
-    int yesWall = recursion(lab, remain - 1, lab.nextIdxOf(idx));
-
     // no wall
-    lab.set(idx, Stat.EMPTY);
     int noWall = recursion(lab, remain, lab.nextIdxOf(idx));
+    best = Math.max(best, noWall);
 
-    best = Math.max(yesWall, noWall);
+    // set up wall
+    if (lab.getStat(idx).get() == Stat.EMPTY) {
+      lab.set(idx, Stat.WALL);
+      int yesWall = recursion(lab, remain - 1, lab.nextIdxOf(idx));
+      lab.set(idx, Stat.EMPTY);
+      best = Math.max(best, yesWall);
+    }
+
     return best;
   }
 
@@ -89,13 +88,24 @@ class Solver14502 {
       }
     }
 
+    public Lab(Stat[][] stats) {
+      ROW = stats.length;
+      COL = stats[0].length;
+      for (int i = 0; i < ROW; ++i) {
+        for (int j = 0; j < COL; ++j) {
+          lab[i][j] = stats[i][j];
+        }
+      }
+    }
+
     public Lab(Lab other) {
       ROW = other.ROW;
       COL = other.COL;
+      lab = new Stat[ROW][COL];
       Stat[][] o = other.getStats();
       for (int i = 0; i < ROW; ++i) {
         for (int j = 0; j < COL; ++j) {
-          this.lab[i][j] = o[i][j];
+          lab[i][j] = o[i][j];
         }
       }
     }
@@ -135,10 +145,10 @@ class Solver14502 {
           if (stat != Stat.WALL && visited[r][c] == false) {
             visited[r][c] = true;
             set(cursor, Stat.VIRUS);
-            stack.push(cursor.add(Direction.UP));
-            stack.push(cursor.add(Direction.DOWN));
-            stack.push(cursor.add(Direction.LEFT));
-            stack.push(cursor.add(Direction.RIGHT));
+            stack.push(cursor.add(Idx2D.Direction.UP));
+            stack.push(cursor.add(Idx2D.Direction.DOWN));
+            stack.push(cursor.add(Idx2D.Direction.LEFT));
+            stack.push(cursor.add(Idx2D.Direction.RIGHT));
           }
         });
       }
@@ -165,7 +175,7 @@ class Solver14502 {
     }
 
     public Idx2D nextIdxOf(Idx2D idx) {
-      if (idx.col() >= COL) {
+      if (idx.col() + 1 >= COL) {
         return Idx2D.of(idx.row() + 1, 0);
       } else {
         return Idx2D.of(idx.row(), idx.col() + 1);
