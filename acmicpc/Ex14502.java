@@ -5,16 +5,11 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Stack;
-import java.util.TreeMap;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 import useful.Idx2D;
 
@@ -33,11 +28,51 @@ public class Ex14502 {
 }
 
 class Solver14502 {
-  public static class Lab {
-    public static enum Stat {
-      EMPTY, WALL, VIRUS;
+  /**
+   * 벽을 세 개 세우는 최악의 경우의 수는 C(54, 3) = 24804이다. 완탐 돌려도 되겠다.
+   */
+  public static int solve(int[][] labRaw) {
+    // 1. init
+    var lab = new Lab(labRaw.length, labRaw[0].length);
+    Stat[] ordinals = Stat.values();
+    for (int i = 0; i < labRaw.length; ++i) {
+      for (int j = 0; j < labRaw[i].length; ++j) {
+        lab.set(Idx2D.of(i, j), ordinals[labRaw[i][j]]);
+      }
     }
+    return recursion(lab, 3, Idx2D.of(0, 0));
+  }
 
+  public static int recursion(Lab lab, int remain, Idx2D idx) {
+    if (remain == 0) {
+      // diffuse and count
+      Lab clone = new Lab(lab);
+      clone.diffuse();
+      int cnt = (int) clone.stream().filter(e -> e == Stat.EMPTY).count();
+      return cnt;
+    }
+    if (lab.isOutOfBounds(idx))
+      return 0;
+
+    int best = 0;
+
+    // set up wall
+    lab.set(idx, Stat.WALL);
+    int yesWall = recursion(lab, remain - 1, lab.nextIdxOf(idx));
+
+    // no wall
+    lab.set(idx, Stat.EMPTY);
+    int noWall = recursion(lab, remain, lab.nextIdxOf(idx));
+
+    best = Math.max(yesWall, noWall);
+    return best;
+  }
+
+  public static enum Stat {
+    EMPTY, WALL, VIRUS;
+  }
+
+  public static class Lab {
     private Stat[][] lab;
 
     public final int ROW;
@@ -54,13 +89,23 @@ class Solver14502 {
       }
     }
 
-    public void forEach(Consumer<Stat> consumer) {
+    public Lab(Lab other) {
+      ROW = other.ROW;
+      COL = other.COL;
+      Stat[][] o = other.getStats();
       for (int i = 0; i < ROW; ++i) {
         for (int j = 0; j < COL; ++j) {
-          final var each = lab[i][j];
-          consumer.accept(each);
+          this.lab[i][j] = o[i][j];
         }
       }
+    }
+
+    public Stream<Stat> stream() {
+      Stream<Stat> ret = Stream.of();
+      for (int i = 0; i < ROW; ++i) {
+        ret = Stream.concat(ret, Stream.of(lab[i]));
+      }
+      return ret;
     }
 
     /**
@@ -100,8 +145,7 @@ class Solver14502 {
     }
 
     public final Optional<Stat> getStat(Idx2D idx) {
-      if (idx.row() < 0 || idx.col() < 0 ||
-          idx.row() >= ROW || idx.col() >= COL) {
+      if (isOutOfBounds(idx)) {
         return Optional.empty();
       }
       return Optional.of(lab[idx.first][idx.second]);
@@ -113,6 +157,19 @@ class Solver14502 {
 
     public void setVirus(Idx2D at) {
       set(at, Stat.VIRUS);
+    }
+
+    public boolean isOutOfBounds(Idx2D idx) {
+      return idx.row() < 0 || idx.col() < 0 ||
+          idx.row() >= ROW || idx.col() >= COL;
+    }
+
+    public Idx2D nextIdxOf(Idx2D idx) {
+      if (idx.col() >= COL) {
+        return Idx2D.of(idx.row() + 1, 0);
+      } else {
+        return Idx2D.of(idx.row(), idx.col() + 1);
+      }
     }
 
     protected void set(Idx2D at, Stat to) {
