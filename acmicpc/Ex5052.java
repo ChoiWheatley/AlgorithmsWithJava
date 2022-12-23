@@ -1,6 +1,7 @@
 package acmicpc;
 
 import java.util.Arrays;
+import java.util.stream.Stream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -11,7 +12,7 @@ public class Ex5052 {
   public static void main(String[] args) {
     try (var br = new BufferedReader(new InputStreamReader(System.in));
         var bw = new BufferedWriter(new OutputStreamWriter(System.out))) {
-      String line = br.readLine();
+      String line = br.readLine(); // "1 2 3 4 5"
       int t = Integer.valueOf(line);
       while (t-- > 0) {
         line = br.readLine();
