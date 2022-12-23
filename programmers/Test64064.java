@@ -104,4 +104,29 @@ public class Test64064 {
     int answer = 3;
     assertEquals(answer, Solution.solution(user_id, banned_id));
   }
+
+  @Test
+  public void solution2_1() {
+    String[] user_id = { "frodo", "fradi", "crodo", "abc123", "frodoc" };
+    String[] banned_id = { "fr*d*", "abc1**" };
+    int answer = 2;
+    assertEquals(answer, Solution2.solution(user_id, banned_id));
+  }
+
+  @Test
+  public void solution2_2() {
+    String[] user_id = { "frodo", "fradi", "crodo", "abc123", "frodoc" };
+    String[] banned_id = { "*rodo", "*rodo", "******" };
+    int answer = 2;
+    assertEquals(answer, Solution.solution(user_id, banned_id));
+  }
+
+  @Test
+  public void solution2_3() {
+    String[] user_id = { "frodo", "fradi", "crodo", "abc123", "frodoc" };
+    String[] banned_id = { "fr*d*", "*rodo", "******", "******" };
+    int answer = 3;
+    assertEquals(answer, Solution.solution(user_id, banned_id));
+  }
+
 }

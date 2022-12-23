@@ -64,4 +64,35 @@ public class Ex64064 {
       return ret;
     }
   }
+
+  public static class Solution2 {
+    Set<Integer> set;
+
+    public static int solution(String[] user_id, String[] banned_id) {
+      var solver = new Solution2();
+      solver.go(0, user_id, banned_id, 0);
+      return solver.set.size();
+    }
+
+    private Solution2() {
+      set = new HashSet<>();
+    }
+
+    private void go(int index, String[] user_id, String[] banned_id, int bit) {
+      if (index >= banned_id.length) {
+        set.add(bit);
+        return;
+      }
+
+      String regex = banned_id[index].replace("*", ".");
+      for (int i = 0; i < user_id.length; ++i) {
+        if (((bit >> i) & 1) == 1 || // already visited
+            !user_id[i].matches(regex)) { // doesn't match with regex
+          continue;
+        }
+        bit |= 1 << i; // check as visited
+        go(index + 1, user_id, banned_id, bit);
+      }
+    }
+  }
 }
