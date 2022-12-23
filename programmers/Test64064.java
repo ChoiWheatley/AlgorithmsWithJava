@@ -59,19 +59,49 @@ public class Test64064 {
   }
 
   @Test
-  public void count() {
+  public void sample1() {
     int[][] matchedIndices = {
         { 0, 1 },
         { 0, 2 },
         { 3, 4 },
-        // { 3, 4 }, // 중복은 사전에 제거해야 할듯
+        { 3, 4 }, // 중복은 사전에 제거해야 할듯
     };
     int answer = 3;
-    assertEquals(answer, Solution.count(matchedIndices, 5));
+    assertEquals(answer, Solution.allCaseOf(matchedIndices).size());
   }
 
   @Test
-  public void sample1() {
+  public void sample2() {
+    int[][] matchedIndices = {
+        { 0, 1, 5 },
+        { 0, 2 },
+        { 3, 4 },
+    };
+    int answer = 10;
+    assertEquals(answer, Solution.allCaseOf(matchedIndices).size());
+  }
 
+  @Test
+  public void sample3() {
+    String[] user_id = { "frodo", "fradi", "crodo", "abc123", "frodoc" };
+    String[] banned_id = { "fr*d*", "abc1**" };
+    int answer = 2;
+    assertEquals(answer, Solution.solution(user_id, banned_id));
+  }
+
+  @Test
+  public void sample4() {
+    String[] user_id = { "frodo", "fradi", "crodo", "abc123", "frodoc" };
+    String[] banned_id = { "*rodo", "*rodo", "******" };
+    int answer = 2;
+    assertEquals(answer, Solution.solution(user_id, banned_id));
+  }
+
+  @Test
+  public void sample5() {
+    String[] user_id = { "frodo", "fradi", "crodo", "abc123", "frodoc" };
+    String[] banned_id = { "fr*d*", "*rodo", "******", "******" };
+    int answer = 3;
+    assertEquals(answer, Solution.solution(user_id, banned_id));
   }
 }

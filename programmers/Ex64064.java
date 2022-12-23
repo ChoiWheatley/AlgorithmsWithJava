@@ -1,7 +1,10 @@
 package programmers;
 
 import java.util.ArrayList;
+import java.util.BitSet;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class Ex64064 {
   public static void main(String[] args) {
@@ -10,13 +13,12 @@ public class Ex64064 {
 
   public static class Solution {
     public static int solution(String[] user_id, String[] banned_id) {
-      // TODO: banned_id 중복제거
       /** matchedIndices: banned_id의 각 원소들과 패턴 매칭이 되는 user_id의 인덱스들 */
       int[][] matchedIndices = new int[banned_id.length][];
-      for (int i = 0; i < user_id.length; ++i) {
+      for (int i = 0; i < banned_id.length; ++i) {
         matchedIndices[i] = possibleIndicesOf(user_id, banned_id[i]);
       }
-      return countPermutation(matchedIndices, 0, new boolean[user_id.length]);
+      return allCaseOf(matchedIndices).size();
     }
 
     /** match(frodo, **od*) -> true */
@@ -42,34 +44,23 @@ public class Ex64064 {
       return ret.stream().mapToInt(Integer::valueOf).toArray();
     }
 
-    public static int count(int[][] indices, int lengthOfReferences) {
-      int permutation = countPermutation(indices, 0, new boolean[lengthOfReferences]);
-      for (int[] each : indices) {
-        int combination = factorial(each.length);
-        permutation -= (combination - 1);
-      }
-      return permutation;
+    public static final int MAX_LENGTH = 32;
+
+    public static Set<BitSet> allCaseOf(int[][] indices) {
+      return caseRecursive(indices, 0, new BitSet(MAX_LENGTH));
     }
 
-    public static int countPermutation(int[][] indices, int currentRow, boolean[] visited) {
-      if (currentRow >= indices.length) {
-        return 1;
-      }
-      int cnt = 0;
+    public static Set<BitSet> caseRecursive(int[][] indices, int currentRow, BitSet visited) {
+      if (currentRow >= indices.length)
+        return Set.of((BitSet) visited.clone());
+      Set<BitSet> ret = new HashSet<>();
       for (var next : indices[currentRow]) {
-        if (!visited[next]) {
-          visited[next] = true;
-          cnt += countPermutation(indices, currentRow + 1, visited);
-          visited[next] = false;
+        if (!visited.get(next)) {
+          visited.set(next);
+          ret.addAll(caseRecursive(indices, currentRow + 1, visited));
+          visited.clear(next);
         }
       }
-      return cnt;
-    }
-
-    public static int factorial(int n) {
-      int ret = 1;
-      for (int i = 1; i <= n; ++i)
-        ret *= i;
       return ret;
     }
   }
