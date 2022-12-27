@@ -4,16 +4,11 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import useful.Idx2D;
 import useful.KMP;
+import useful.SparseMatrix;
 
 public class Ex2401 {
   public static void main(String[] args) throws IOException {
@@ -26,7 +21,7 @@ public class Ex2401 {
       S.add(reader.readLine());
     }
 
-    int submit = Solution2.solution(L, S);
+    int submit = Solution3.solution(L, S);
     System.out.println(submit);
 
     reader.close();
@@ -133,38 +128,56 @@ public class Ex2401 {
     }
   }
 
-  public static class SparseMatrix<T> {
+  public static class Solution3 {
+    /** KMP를 사용하여 일치 문자열의 인덱스를 받아올 때마다 DP를 업데이트해보자. */
+    public static int solution(String L, List<String> S) {
+      int[] sum = new int[L.length()]; // cumulative
+      int[][] fails = new int[S.size()][]; // S의 원소들에 대한 fail함수들을 저장
 
-    private Map<Idx2D, T> table;
+      IntStream.range(0, S.size()).forEach(row -> {
+        var kmp = new KMP(S.get(row));
+        fails[row] = kmp.fail();
+      });
 
-    public final int ROW;
-    public final int COL;
-
-    public SparseMatrix(int row, int col) {
-      this.ROW = row;
-      this.COL = col;
-      this.table = new HashMap<>();
-    }
-
-    public void set(int row, int col, T val) {
-      if (row >= ROW || col >= COL ||
-          row < 0 || col < 0) {
-        throw new IndexOutOfBoundsException();
+      // 유사 KMP compare 알고리즘
+      int[] kmpPos = new int[S.size()]; // for 문을 보면 알 수 있듯이, L 글자 하나마다 모든 S를 방문하여 비교위치와 dp에 사용되는 sum값을 수정한다.
+      for (int col = 0; col < L.length(); ++col) {
+        if (col > 0) {
+          sum[col] = sum[col - 1];
+        }
+        for (int row = 0; row < S.size(); ++row) {
+          String s = S.get(row);
+          // 글자 불일치
+          while (kmpPos[row] > 0 && L.charAt(col) != s.charAt(kmpPos[row])) {
+            kmpPos[row] = fails[row][kmpPos[row] - 1]; // j = fail(f - 1)
+          }
+          // 글자 일치
+          if (L.charAt(col) == s.charAt(kmpPos[row])) {
+            kmpPos[row] += 1;
+            // 단어 일치
+            if (kmpPos[row] == s.length()) {
+              // DP사용
+              var currentLength = kmpPos[row];
+              var startIdx = col - currentLength;
+              var rangedSum = sumBetween(sum, startIdx, col);
+              if (rangedSum < currentLength) {
+                sum[col] += currentLength - rangedSum;
+              }
+              // 모든 occurrences를 찾기 위해 다시 fail 시킨다.
+              kmpPos[row] = fails[row][kmpPos[row] - 1];
+            }
+          }
+        }
       }
-      Idx2D idx = Idx2D.of(row, col);
-      table.put(idx, val);
-    }
 
-    public Optional<T> get(int row, int col) {
-      return Optional.ofNullable(table.get(Idx2D.of(row, col)));
-    }
-
-    public Set<Map.Entry<Idx2D, T>> getR(int row) {
-      return table.entrySet().stream().filter(e -> e.getKey().row() == row).collect(Collectors.toSet());
-    }
-
-    public Set<Map.Entry<Idx2D, T>> getC(int col) {
-      return table.entrySet().stream().filter(e -> e.getKey().col() == col).collect(Collectors.toSet());
+      return sum[L.length() - 1];
     }
   }
+
+  static int sumBetween(int[] cumulative, int start, int end) {
+    if (start < 0)
+      return cumulative[end];
+    return cumulative[end] - cumulative[start];
+  }
+
 }

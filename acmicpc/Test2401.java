@@ -13,8 +13,10 @@ import java.util.Set;
 
 import org.junit.Test;
 
+import acmicpc.Ex2401.Solution;
 import acmicpc.Ex2401.Solution2;
-import acmicpc.Ex2401.SparseMatrix;
+import acmicpc.Ex2401.Solution3;
+import useful.SparseMatrix;
 import useful.Idx2D;
 
 public class Test2401 {
@@ -73,10 +75,13 @@ public class Test2401 {
         "bc");
     answer = L.length();
     submit = solution(L, S);
+    assertEquals(answer, submit);
+
     submit2 = Solution2.solution(L, S);
     assertEquals(answer, submit2);
 
-    assertEquals(answer, submit);
+    var submit3 = Solution3.solution(L, S);
+    assertEquals(answer, submit3);
   }
 
   /** 새로운 문자열에 의해 대체되는 경우 */
@@ -86,11 +91,13 @@ public class Test2401 {
     S = Arrays.asList("a", "b", "c", "abcd");
     answer = L.length();
     submit = solution(L, S);
-    submit = solution(L, S);
+    assertEquals(answer, submit);
+
     submit2 = Solution2.solution(L, S);
     assertEquals(answer, submit2);
 
-    assertEquals(answer, submit);
+    var submit3 = Solution3.solution(L, S);
+    assertEquals(answer, submit3);
   }
 
   /** 중간에 문자열을 대체하는 경우 */
@@ -100,11 +107,13 @@ public class Test2401 {
     S = Arrays.asList("abcd", "ABC", "ABCD");
     answer = L.length();
     submit = solution(L, S);
-    submit = solution(L, S);
+    assertEquals(answer, submit);
+
     submit2 = Solution2.solution(L, S);
     assertEquals(answer, submit2);
 
-    assertEquals(answer, submit);
+    var submit3 = Solution3.solution(L, S);
+    assertEquals(answer, submit3);
   }
 
   @Test
@@ -113,11 +122,13 @@ public class Test2401 {
     S = Arrays.asList("aab", "bcc");
     answer = 3;
     submit = solution(L, S);
-    submit = solution(L, S);
+    assertEquals(answer, submit);
+
     submit2 = Solution2.solution(L, S);
     assertEquals(answer, submit2);
 
-    assertEquals(answer, submit);
+    var submit3 = Solution3.solution(L, S);
+    assertEquals(answer, submit3);
   }
 
   @Test
@@ -126,11 +137,28 @@ public class Test2401 {
     S = Arrays.asList("abcdefg", "bcdefghijkl", "cdefghij", "mnopqrstuvwxyz");
     answer = 25;
     submit = solution(L, S);
-    submit = solution(L, S);
+    assertEquals(answer, submit);
+
     submit2 = Solution2.solution(L, S);
     assertEquals(answer, submit2);
 
+    var submit3 = Solution3.solution(L, S);
+    assertEquals(answer, submit3);
+  }
+
+  @Test
+  public void sol6() {
+    L = "aabbbbbbbbaa";
+    S = Arrays.asList("aa", "cc");
+    answer = 4;
+    submit = solution(L, S);
     assertEquals(answer, submit);
+
+    submit2 = Solution2.solution(L, S);
+    assertEquals(answer, submit2);
+
+    var submit3 = Solution3.solution(L, S);
+    assertEquals(answer, submit3);
   }
 
   @Test
