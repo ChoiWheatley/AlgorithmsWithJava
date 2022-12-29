@@ -42,32 +42,21 @@ public class Ex25916 {
      * 최대 j에 대한 SUM을 구하는 문제. 이때 i: 0..<hole.length
      */
     public static long solution(List<Long> holes, long hamster) {
+      List<Long> cumulative = new ArrayList<>(holes);
+      for (int i = 1; i < cumulative.size(); ++i) {
+        cumulative.set(i, cumulative.get(i - 1) + cumulative.get(i));
+      }
       AtomicLong max = new AtomicLong(0l);
 
-      // 햄스터는 비록 유체이지만 몸을 둘로 나눌 수 없기 때문에 hole[i] == 0인 i에 대하여
-      // 리스트 분리를 수행한다.
-      List<List<Long>> splitted = new ArrayList<>(holes.size());
-      int left = 0;
-      int i = 1;
-      for (; i < holes.size(); ++i) {
-        if (holes.get(i) == 0) {
-          splitted.add(cumulate(holes.subList(left, i)));
-          left = i;
-        }
-      }
-      splitted.add(cumulate(holes.subList(left, i)));
-
       // 모든 리스트를 순회하며 max를 수정한다.
-      splitted.forEach(cum -> {
-        IntStream.range(0, cum.size()).forEach(startIdx -> {
-          int j = upperBound(startIdx, cum.size(),
-              idx -> sumBetween(cum, startIdx, idx) <= hamster);
-          j -= 1; // 현재 j는 hamster보다 큰 원소 중 첫번째 원소를 가리키고 있기 때문.
-          var sum = sumBetween(cum, startIdx, j);
-          if (max.get() < sum) {
-            max.set(sum);
-          }
-        });
+      IntStream.range(0, cumulative.size()).forEach(startIdx -> {
+        int j = upperBound(startIdx, cumulative.size(),
+            idx -> sumBetween(cumulative, startIdx, idx) <= hamster);
+        j -= 1; // 현재 j는 hamster보다 큰 원소 중 첫번째 원소를 가리키고 있기 때문.
+        var sum = sumBetween(cumulative, startIdx, j);
+        if (max.get() < sum) {
+          max.set(sum);
+        }
       });
 
       return max.get();
