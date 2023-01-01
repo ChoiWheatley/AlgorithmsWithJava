@@ -32,6 +32,9 @@ public class Test17359 {
 
     submit = Solution2.solution(ls);
     assertEquals(answer, submit);
+
+    submit = Solution3.solution(ls);
+    assertEquals(answer, submit);
   }
 
   @Test
@@ -43,6 +46,9 @@ public class Test17359 {
 
     submit = Solution2.solution(ls);
     assertEquals(answer, submit);
+
+    submit = Solution3.solution(ls);
+    assertEquals(answer, submit);
   }
 
   @Test
@@ -53,6 +59,9 @@ public class Test17359 {
     assertEquals(answer, submit);
 
     submit = Solution2.solution(ls);
+    assertEquals(answer, submit);
+
+    submit = Solution3.solution(ls);
     assertEquals(answer, submit);
   }
 
@@ -92,6 +101,23 @@ public class Test17359 {
           .get());
     }
     Solution2.solution(ls);
+  }
+
+  @Test
+  public void timeout3() {
+    int n = 10;
+    int strLen = 100;
+    Random r = new Random();
+    List<String> ls = new ArrayList<>(n);
+    for (int i = 0; i < n; ++i) {
+      ls.add(r.ints(0, 2)
+          .limit(strLen)
+          .boxed()
+          .map(String::valueOf)
+          .reduce((a, b) -> a += b)
+          .get());
+    }
+    Solution3.solution(ls);
   }
 
   public int factorial(int n) {
