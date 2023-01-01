@@ -127,6 +127,42 @@ public class Ex17359 {
     }
   }
 
+  public static class Solution4 {
+    public static int solution(List<String> ls) {
+      int constCnt = 0;
+      for (int i = 0; i < ls.size(); ++i)
+        constCnt += countSwitch(ls.get(i));
+      int boundaryCnt = go(ls, new BitSet(ls.size()), "");
+      return constCnt + boundaryCnt;
+    }
+
+    public static boolean nextPermutation(List<Integer> indices) {
+      // TODO: 구현
+    }
+
+    public static int go(List<String> ls, BitSet visited, String lastBoundaryChar) {
+      if (visited.stream().count() == ls.size())
+        return 0;
+      int min = Integer.MAX_VALUE;
+      for (int idx = 0; idx < ls.size(); ++idx) {
+        String cur = ls.get(idx);
+        if (visited.get(idx) == false) {
+          visited.set(idx);
+
+          int cnt = 0;
+          if (lastBoundaryChar.length() == 1 &&
+              lastBoundaryChar.charAt(0) != cur.charAt(0))
+            cnt++;
+          cnt += go(ls, visited, String.valueOf(cur.charAt(cur.length() - 1)));
+          min = Math.min(min, cnt);
+
+          visited.clear(idx);
+        }
+      }
+      return min;
+    }
+  }
+
   public static int countSwitch(String bulbs) {
     AtomicInteger cnt = new AtomicInteger(0);
     var iter = bulbs.chars().iterator();
