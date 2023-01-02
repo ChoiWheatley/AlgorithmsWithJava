@@ -76,6 +76,28 @@ public class Test17359 {
   }
 
   @Test
+  @RepeatedTest(10)
+  public void verify1() {
+    int n = 9;
+    int strLen = 5;
+    Random r = new Random();
+    List<String> ls = new ArrayList<>(n);
+    for (int i = 0; i < n; ++i) {
+      ls.add(r.ints(0, 2)
+          .limit(strLen)
+          .boxed()
+          .map(String::valueOf)
+          .reduce((a, b) -> a += b)
+          .get());
+    }
+    int answer = Solution3.solution(ls);
+    int submit1 = Solution.solution(ls);
+    int submit2 = Solution2.solution(ls);
+    int submit4 = Solution4.solution(ls);
+    assertEquals(answer, submit1, String.format("\nls: %s\n\n", ls.toString()));
+  }
+
+  @Test
   public void timeout1() {
     int n = 5;
     int strLen = 4;

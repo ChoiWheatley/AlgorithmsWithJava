@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.BitSet;
 import java.util.Comparator;
 import java.util.List;
@@ -28,6 +27,17 @@ public class Ex17359 {
     }
   }
 
+  /**
+   * Solution ~ Solution3까지는 naive한 코드들, 재귀를 사용함. Solution3을 제외하곤 1,2는 모두 시간초과
+   * 발생함.
+   * Solution4는 next_permutation 함수를 직접 구현하여 문제를 풂. 약 400ms로 통과함.
+   */
+
+  /**
+   * Solution 쪽은 재귀를 사용하는데 `current`라고 지금까지 탐색한 인덱스들을 하나씩 붙여놓은 문자열.
+   * 재귀 종료조건에 보면 최종 current의 전구상태가 바뀌는 횟수를 리턴하고 있음.
+   * 그래서 재귀함수의 리턴 중 최솟값만을 취해 던지면 정답이 된다.
+   */
   public static class Solution {
     public static int callCount = 0;
 
@@ -60,6 +70,11 @@ public class Ex17359 {
 
   }
 
+  /**
+   * Solution1이 안되는 이유를 String 붙여넣기에 오버헤드가 발생했다고 가정하여 인덱스만을 저장하고 종료조건에서 한 번에 계산하는
+   * 것으로 작성. 이때 굳이 스트링을 다 붙여넣지 말고 경계에 대해서만 계산하고 내부에 발생하는 전구가 바뀌는 경우는 변하지 않으니
+   * 미리 계산하는 것으로 변경. 비록 시간초과가 발생했지만 내부적으로 전구가 바뀌는 걸 세는 것은 올바름.
+   */
   public static class Solution2 {
     public static int solution(List<String> ls) {
       int constCnt = 0;
@@ -98,6 +113,11 @@ public class Ex17359 {
     }
   }
 
+  /**
+   * Solution2의 indexOrder가 분명 시간초과를 발생시켰으리라 생각하고 조금 더 간소화 작업을 수행함. 바로 이전 스트링의 마지막
+   * char만 다음 호출시 넘기는 것이다. 왜 lastBoundaryChar의 타입이 String 이냐면, 초기엔 이전 스트링이 없기 때문에
+   * 빈 문자열을 넘기기 위해서이다. 그래서 문자열이 비어있는지를 확인하는 부분이 존재한다.
+   */
   public static class Solution3 {
     public static int solution(List<String> ls) {
       int constCnt = 0;
@@ -130,18 +150,22 @@ public class Ex17359 {
     }
   }
 
+  /**
+   * @kati 코드를 보고 next_permutation을 사용하면 되겠다 판단. nextPermutation 자체가 n!가 아닌 n만큼의
+   *       시간복잡도를 사용하기 때문에 이전보다 더 빠른 경우의 수를 가져올 수 있다.
+   */
   public static class Solution4 {
     public static int solution(List<String> ls) {
       int constCnt = 0;
       for (int i = 0; i < ls.size(); ++i)
         constCnt += countSwitch(ls.get(i));
-      int boundaryCnt = 0;
+      int boundaryCnt = Integer.MAX_VALUE;
       List<Integer> indices = new ArrayList<>(ls.size());
       IntStream.range(0, ls.size()).forEach(indices::add);
 
       do {
         int cnt = 0;
-        for (int i = 1; i < indices.size(); ++i) {
+        for (int i = 1; i < ls.size(); ++i) {
           String left = ls.get(indices.get(i - 1));
           String right = ls.get(indices.get(i));
           if (left.charAt(left.length() - 1) != right.charAt(0))
@@ -149,12 +173,21 @@ public class Ex17359 {
         }
         boundaryCnt = Math.min(boundaryCnt, cnt);
       } while (nextPermutation(indices, Comparator.naturalOrder()));
+      // first and last
 
       return constCnt + boundaryCnt;
     }
 
   }
 
+  /**
+   * 전구가 바뀌는 횟수를 리턴한다. 마침 어제 자바책에서 이터레이터를 알려주기에 사용해봤다.
+   * forEach문 안에서 일반 int형 변수를 변경하면 effectively final이 아니라서 징징댄다. 그래서
+   * AtomicInteger라는 스레드 안전한 개체를 사용했다.
+   * 
+   * @param bulbs
+   * @return
+   */
   public static int countSwitch(String bulbs) {
     AtomicInteger cnt = new AtomicInteger(0);
     var iter = bulbs.chars().iterator();
@@ -208,12 +241,14 @@ public class Ex17359 {
     ls.set(lo, tmp);
 
     // 3. i번째 원소부터 단조증가수열로 만든다.
-    for (int len = 0; len < (ls.size() - i + 1) / 2; ++len) {
-      int leftIdx = i + len;
-      int rightIdx = ls.size() - len - 1;
-      tmp = ls.get(leftIdx);
-      ls.set(leftIdx, ls.get(rightIdx));
-      ls.set(rightIdx, tmp);
+    int left = i;
+    int right = lastIdx;
+    while (left < right) {
+      tmp = ls.get(left);
+      ls.set(left, ls.get(right));
+      ls.set(right, tmp);
+      left++;
+      right--;
     }
 
     return true;
