@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
 
@@ -139,5 +140,81 @@ public class Test17359 {
         .reduce((a, b) -> a += b)
         .get();
     countSwitch(str);
+  }
+
+  @Test
+  public void nextPermutation1() {
+    List<Integer> ls = Arrays.asList(1, 2, 3);
+    List<Integer> answer = Arrays.asList(1, 3, 2);
+    nextPermutation(ls, Comparator.naturalOrder());
+    assertEquals(answer, ls);
+
+    answer = Arrays.asList(2, 1, 3);
+    nextPermutation(ls, Comparator.naturalOrder());
+    assertEquals(answer, ls);
+
+    answer = Arrays.asList(2, 3, 1);
+    nextPermutation(ls, Comparator.naturalOrder());
+    assertEquals(answer, ls);
+
+    answer = Arrays.asList(3, 1, 2);
+    nextPermutation(ls, Comparator.naturalOrder());
+    assertEquals(answer, ls);
+
+    answer = Arrays.asList(3, 2, 1);
+    nextPermutation(ls, Comparator.naturalOrder());
+    assertEquals(answer, ls);
+
+    assertEquals(false, nextPermutation(ls, Comparator.naturalOrder()));
+  }
+
+  @Test
+  public void nextPermutation2() {
+    List<Integer> ls = Arrays.asList(10, 20, 20, 30);
+    List<Integer> answer = Arrays.asList(10, 20, 30, 20);
+    nextPermutation(ls, Comparator.naturalOrder());
+    assertEquals(answer, ls);
+
+    answer = Arrays.asList(10, 30, 20, 20);
+    nextPermutation(ls, Comparator.naturalOrder());
+    assertEquals(answer, ls);
+
+    answer = Arrays.asList(20, 10, 20, 30);
+    nextPermutation(ls, Comparator.naturalOrder());
+    assertEquals(answer, ls);
+
+    answer = Arrays.asList(20, 10, 30, 20);
+    nextPermutation(ls, Comparator.naturalOrder());
+    assertEquals(answer, ls);
+
+    answer = Arrays.asList(20, 20, 10, 30);
+    nextPermutation(ls, Comparator.naturalOrder());
+    assertEquals(answer, ls);
+
+    answer = Arrays.asList(20, 20, 30, 10);
+    nextPermutation(ls, Comparator.naturalOrder());
+    assertEquals(answer, ls);
+
+    answer = Arrays.asList(20, 30, 10, 20);
+    nextPermutation(ls, Comparator.naturalOrder());
+    assertEquals(answer, ls);
+
+    answer = Arrays.asList(20, 30, 20, 10);
+    nextPermutation(ls, Comparator.naturalOrder());
+    assertEquals(answer, ls);
+
+    answer = Arrays.asList(30, 10, 20, 20);
+    nextPermutation(ls, Comparator.naturalOrder());
+    assertEquals(answer, ls);
+
+    answer = Arrays.asList(30, 20, 10, 20);
+    nextPermutation(ls, Comparator.naturalOrder());
+    assertEquals(answer, ls);
+
+    answer = Arrays.asList(30, 20, 20, 10);
+    nextPermutation(ls, Comparator.naturalOrder());
+    assertEquals(answer, ls);
+
+    assertEquals(false, nextPermutation(ls, Comparator.naturalOrder()));
   }
 }

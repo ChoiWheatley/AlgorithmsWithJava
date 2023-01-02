@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.BitSet;
+import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Stack;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -136,10 +138,6 @@ public class Ex17359 {
       return constCnt + boundaryCnt;
     }
 
-    public static boolean nextPermutation(List<Integer> indices) {
-      // TODO: 구현
-    }
-
     public static int go(List<String> ls, BitSet visited, String lastBoundaryChar) {
       if (visited.stream().count() == ls.size())
         return 0;
@@ -178,4 +176,53 @@ public class Ex17359 {
 
     return cnt.get();
   }
+
+  /**
+   * 사전순 상에 다음으로 오는 조합을 collection에 저장한다.
+   * 
+   * @param ls         out
+   * @param comparator 사전순서 정의
+   * @return if has no any next permutation, return false, else, return true
+   */
+  public static <T extends Comparable<T>> boolean nextPermutation(List<T> ls, Comparator<T> comparator) {
+    final int lastIdx = ls.size() - 1;
+    // 1. 단조감소수열이 끝나는 인덱스 i를 찾는다.
+    int i = lastIdx;
+    for (; i > 0; --i) {
+      if (comparator.compare(ls.get(i - 1), ls.get(i)) < 0)
+        break;
+    }
+    if (i == 0)
+      return false;
+
+    // 2. 이진탐색을 활용하여 i - 1에 위치한 원소와 그보다 큰 원소들 중 가장 작은 원소(upperbound)를
+    // 찾아 서로 바꾼다. 참고: [i:last]는 현재 reversed이다.
+    int lo = i;
+    int hi = ls.size();
+    T tmp = ls.get(i - 1);
+    while (hi - lo > 1) {
+      int mid = (lo + hi) / 2;
+      if (comparator.compare(ls.get(mid), tmp) <= 0) {
+        // go left
+        hi = mid - 1;
+      } else {
+        // go right
+        lo = mid;
+      }
+    }
+    ls.set(i - 1, ls.get(lo));
+    ls.set(lo, tmp);
+
+    // 3. i번째 원소부터 단조증가수열로 만든다.
+    for (int len = 0; len < (ls.size() - i + 1) / 2; ++len) {
+      int leftIdx = i + len;
+      int rightIdx = ls.size() - len - 1;
+      tmp = ls.get(leftIdx);
+      ls.set(leftIdx, ls.get(rightIdx));
+      ls.set(rightIdx, tmp);
+    }
+
+    return true;
+  }
+
 }
