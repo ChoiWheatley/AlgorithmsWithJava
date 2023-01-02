@@ -76,10 +76,15 @@ public class Test17359 {
   }
 
   @Test
+  public void sol4() {
+    List<String> ls = Arrays.asList();
+  }
+
+  @Test
   @RepeatedTest(10)
   public void verify1() {
-    int n = 9;
-    int strLen = 5;
+    int n = 10;
+    int strLen = 100;
     Random r = new Random();
     List<String> ls = new ArrayList<>(n);
     for (int i = 0; i < n; ++i) {
@@ -90,11 +95,12 @@ public class Test17359 {
           .reduce((a, b) -> a += b)
           .get());
     }
-    int answer = Solution3.solution(ls);
-    int submit1 = Solution.solution(ls);
-    int submit2 = Solution2.solution(ls);
+    // int answer = Solution3.solution(ls);
+    // int submit1 = Solution.solution(ls);
+    // int submit2 = Solution2.solution(ls);
     int submit4 = Solution4.solution(ls);
-    assertEquals(answer, submit1, String.format("\nls: %s\n\n", ls.toString()));
+    int submit5 = Solution5.solution(ls);
+    assertEquals(submit4, submit5, String.format("\nls: %s\n\n", ls.toString()));
   }
 
   @Test
@@ -243,6 +249,25 @@ public class Test17359 {
     assertEquals(answer, ls);
 
     answer = Arrays.asList(30, 20, 20, 10);
+    nextPermutation(ls, Comparator.naturalOrder());
+    assertEquals(answer, ls);
+
+    assertEquals(false, nextPermutation(ls, Comparator.naturalOrder()));
+  }
+
+  /** 중복을 Permutation이 어떻게 처리하는지 테스트한다. */
+  @Test
+  public void nextPermutation3() {
+    List<String> ls = Arrays.asList("A", "A", "A", "B");
+    List<String> answer = Arrays.asList("A", "A", "B", "A");
+    nextPermutation(ls, Comparator.naturalOrder());
+    assertEquals(answer, ls);
+
+    answer = Arrays.asList("A", "B", "A", "A");
+    nextPermutation(ls, Comparator.naturalOrder());
+    assertEquals(answer, ls);
+
+    answer = Arrays.asList("B", "A", "A", "A");
     nextPermutation(ls, Comparator.naturalOrder());
     assertEquals(answer, ls);
 

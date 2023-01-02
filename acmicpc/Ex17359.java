@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.BitSet;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Stack;
@@ -174,6 +175,36 @@ public class Ex17359 {
         boundaryCnt = Math.min(boundaryCnt, cnt);
       } while (nextPermutation(indices, Comparator.naturalOrder()));
       // first and last
+
+      return constCnt + boundaryCnt;
+    }
+
+  }
+
+  /**
+   * Index에 대한 permutation을 사용하면 AAB와 같이 중복된 전구묶음이 존재할 경우 같은 연산을 여러 번 수행할 수
+   * 있다는 단점이 존재한다. 이 경우, 전구묶음 자체를 permutation 하게 되면 그 중복을 방지할 수 있다.
+   * 
+   * @kati
+   */
+  public static class Solution5 {
+    public static int solution(List<String> ls) {
+      Collections.sort(ls); // sort를 사용해야 permutation을 처음부터 쓸 수 있음.
+      int constCnt = 0;
+      for (int i = 0; i < ls.size(); ++i)
+        constCnt += countSwitch(ls.get(i));
+      int boundaryCnt = Integer.MAX_VALUE;
+
+      do {
+        int cnt = 0;
+        for (int i = 1; i < ls.size(); ++i) {
+          String left = ls.get(i - 1);
+          String right = ls.get(i);
+          if (left.charAt(left.length() - 1) != right.charAt(0))
+            cnt++;
+        }
+        boundaryCnt = Math.min(boundaryCnt, cnt);
+      } while (nextPermutation(ls, Comparator.naturalOrder()));
 
       return constCnt + boundaryCnt;
     }
