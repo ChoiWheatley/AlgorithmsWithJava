@@ -4,12 +4,13 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.BitSet;
-import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Stack;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.IntStream;
 
 public class Ex17359 {
   public static void main(String[] args) {
@@ -134,31 +135,24 @@ public class Ex17359 {
       int constCnt = 0;
       for (int i = 0; i < ls.size(); ++i)
         constCnt += countSwitch(ls.get(i));
-      int boundaryCnt = go(ls, new BitSet(ls.size()), "");
+      int boundaryCnt = 0;
+      List<Integer> indices = new ArrayList<>(ls.size());
+      IntStream.range(0, ls.size()).forEach(indices::add);
+
+      do {
+        int cnt = 0;
+        for (int i = 1; i < indices.size(); ++i) {
+          String left = ls.get(indices.get(i - 1));
+          String right = ls.get(indices.get(i));
+          if (left.charAt(left.length() - 1) != right.charAt(0))
+            cnt++;
+        }
+        boundaryCnt = Math.min(boundaryCnt, cnt);
+      } while (nextPermutation(indices, Comparator.naturalOrder()));
+
       return constCnt + boundaryCnt;
     }
 
-    public static int go(List<String> ls, BitSet visited, String lastBoundaryChar) {
-      if (visited.stream().count() == ls.size())
-        return 0;
-      int min = Integer.MAX_VALUE;
-      for (int idx = 0; idx < ls.size(); ++idx) {
-        String cur = ls.get(idx);
-        if (visited.get(idx) == false) {
-          visited.set(idx);
-
-          int cnt = 0;
-          if (lastBoundaryChar.length() == 1 &&
-              lastBoundaryChar.charAt(0) != cur.charAt(0))
-            cnt++;
-          cnt += go(ls, visited, String.valueOf(cur.charAt(cur.length() - 1)));
-          min = Math.min(min, cnt);
-
-          visited.clear(idx);
-        }
-      }
-      return min;
-    }
   }
 
   public static int countSwitch(String bulbs) {

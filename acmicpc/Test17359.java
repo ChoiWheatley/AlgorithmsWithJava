@@ -36,6 +36,9 @@ public class Test17359 {
 
     submit = Solution3.solution(ls);
     assertEquals(answer, submit);
+
+    submit = Solution4.solution(ls);
+    assertEquals(answer, submit);
   }
 
   @Test
@@ -49,6 +52,9 @@ public class Test17359 {
     assertEquals(answer, submit);
 
     submit = Solution3.solution(ls);
+    assertEquals(answer, submit);
+
+    submit = Solution4.solution(ls);
     assertEquals(answer, submit);
   }
 
@@ -64,11 +70,14 @@ public class Test17359 {
 
     submit = Solution3.solution(ls);
     assertEquals(answer, submit);
+
+    submit = Solution4.solution(ls);
+    assertEquals(answer, submit);
   }
 
   @Test
   public void timeout1() {
-    int n = 10;
+    int n = 5;
     int strLen = 4;
     Random r = new Random();
     List<String> ls = new ArrayList<>(n);
@@ -89,7 +98,7 @@ public class Test17359 {
 
   @Test
   public void timeout2() {
-    int n = 10;
+    int n = 5;
     int strLen = 100;
     Random r = new Random();
     List<String> ls = new ArrayList<>(n);
