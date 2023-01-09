@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class Ex1911 {
     public static void main(String[] args) throws IOException {
@@ -31,6 +32,12 @@ public class Ex1911 {
     public static class Solution {
         public static int solution(List<Hole> ls, int plankLen) {
             Collections.sort(ls);
+            // 첫번째 구멍의 위치를 0번으로 전부 바꾼다.
+            int offset = ls.get(0).start;
+            ls = ls.stream().map((before) -> {
+                return new Hole(before.start - offset, before.end - offset);
+            }).collect(Collectors.toList());
+
             int result = 0;
             int start = 0;
             int end = ls.get(0).end;

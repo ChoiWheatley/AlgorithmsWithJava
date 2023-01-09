@@ -26,7 +26,16 @@ public class Test1911 {
                 new Hole(8, 12));
         int answer = 5;
         int submit = Solution.solution(holes, plankLen);
+        assertEquals(answer, submit);
 
+        plankLen = 4;
+        answer = 4;
+        submit = Solution.solution(holes, plankLen);
+        assertEquals(answer, submit);
+
+        plankLen = 5;
+        answer = 3;
+        submit = Solution.solution(holes, plankLen);
         assertEquals(answer, submit);
     }
 
@@ -65,6 +74,21 @@ public class Test1911 {
         int answer = 1;
         int submit = Solution.solution(holes, planklen);
         assertEquals(answer, submit);
+
+        planklen = 2;
+        answer = 5;
+        submit = Solution.solution(holes, planklen);
+        assertEquals(answer, submit);
+
+        planklen = 1;
+        answer = 5;
+        submit = Solution.solution(holes, planklen);
+        assertEquals(answer, submit);
+
+        planklen = 100;
+        answer = 1;
+        submit = Solution.solution(holes, planklen);
+        assertEquals(answer, submit);
     }
 
     @Test
@@ -98,6 +122,18 @@ public class Test1911 {
                 new Hole(0, 1),
                 new Hole(10, 11));
         int answer = 2;
+        int submit = Solution.solution(holes, planklen);
+        assertEquals(answer, submit);
+    }
+
+    @Test
+    public void sol7() {
+        int planklen = 10;
+        List<Hole> holes = Arrays.asList(
+                new Hole(2, 7),
+                new Hole(9, 10),
+                new Hole(11, 12));
+        int answer = 1;
         int submit = Solution.solution(holes, planklen);
         assertEquals(answer, submit);
     }
