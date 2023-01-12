@@ -5,13 +5,13 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 import useful.Pair;
 
@@ -39,18 +39,33 @@ public class Ex2170 {
             // bw.write(sum + "\n");
 
             /** Solution2 방식 */
-            List<Line> lines = new ArrayList<>(t);
-            while (t-- > 0) {
+            // List<Line> lines = new ArrayList<>(t);
+            // while (t-- > 0) {
 
+            // line = br.readLine();
+            // String[] splitted = line.split(" ");
+            // int start = Integer.parseInt(splitted[0]);
+            // int end = Integer.parseInt(splitted[1]);
+
+            // lines.add(Line.of(start, end));
+            // }
+            // int submit = Solution2.solution(lines);
+            // bw.write(submit + "\n");
+
+            /** Solution1_1 방식 */
+            Solution1_1 solution1_1 = new Solution1_1();
+            while (t-- > 0) {
                 line = br.readLine();
                 String[] splitted = line.split(" ");
                 int start = Integer.parseInt(splitted[0]);
                 int end = Integer.parseInt(splitted[1]);
 
-                lines.add(Line.of(start, end));
+                solution1_1.add(Line.of(start, end));
             }
-            int submit = Solution2.solution(lines);
-            bw.write(submit + "\n");
+
+            Collection<Line> lines = solution1_1.getLines();
+            int sum = lines.stream().mapToInt(Line::length).sum();
+            bw.write(sum + "\n");
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -118,6 +133,9 @@ public class Ex2170 {
             }
         }
 
+        /**
+         * Select line From lines where (e.end >= other.start) And (e.start < other.end)
+         */
         private static Collection<Line> findRelevantLines(TreeMap<Integer, Line> startersOut,
                 TreeMap<Integer, Line> endersOut, Line other) {
 
@@ -156,6 +174,68 @@ public class Ex2170 {
             result += r - l; // last case
 
             return result;
+        }
+    }
+
+    /**
+     * Solution1 에서 맵을 굳이 사용할 필요가 없다고 판단.
+     * 수정: set filter에서 너무 오랜 시간이 걸린다. 폐기.
+     */
+    public static class Solution1_1 {
+        private TreeSet<Line> lines;
+
+        public Solution1_1() {
+            this.lines = new TreeSet<>();
+        }
+
+        public Solution1_1(Collection<Line> lines) {
+
+            this.lines = new TreeSet<>();
+            lines.forEach(e -> Solution1_1.add(this.lines, e));
+        }
+
+        public void add(Line line) {
+            Solution1_1.add(lines, line);
+        }
+
+        public Collection<Line> getLines() {
+            return lines;
+        }
+
+        public Set<Line> findRelevantLines(Line line) {
+            return Solution1_1.findRelevantLines(lines, line);
+        }
+
+        /**
+         * Select line From lines where (e.end >= other.start) And (e.start < other.end)
+         */
+        private static void add(TreeSet<Line> lines, Line line) {
+
+            Set<Line> originals = findRelevantLines(lines, line);
+            if (originals.isEmpty()) {
+
+                lines.add(line);
+            } else {
+                // find min and max of relevant lines
+
+                int min = originals.stream().mapToInt(Line::start).min().orElseThrow();
+                int max = originals.stream().mapToInt(Line::end).max().orElseThrow();
+                min = Integer.min(min, line.start());
+                max = Integer.max(max, line.end());
+                Line newLine = Line.of(min, max);
+                originals.forEach(lines::remove);
+
+                lines.add(newLine);
+            }
+        }
+
+        /**
+         * Select line From lines where (e.end >= other.start) And (e.start < other.end)
+         */
+        private static Set<Line> findRelevantLines(TreeSet<Line> lines, Line line) {
+            return lines.stream()
+                    .filter(l -> l.end() >= line.start() && l.start() < line.end())
+                    .collect(Collectors.toSet());
         }
     }
 
