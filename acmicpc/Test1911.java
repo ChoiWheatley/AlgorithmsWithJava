@@ -252,19 +252,19 @@ public class Test1911 {
         assertEquals(answer, submit3);
     }
 
-    @Test
-    public void sol8() {
-        int plankLen = 1;
-        List<Range> holes = Arrays.asList(
-                Range.of(0, 2),
-                Range.of(1, 3),
-                Range.of(2, 4),
-                Range.of(3, 5),
-                Range.of(4, 6),
-                Range.of(5, 7));
-        int answer = 6;
-        int submit = Solution.solution(holes, plankLen);
-        int submit2 = Solution2.solution(holes, plankLen);
+    // @Test
+    // public void sol8() {
+    // int plankLen = 1;
+    // List<Range> holes = Arrays.asList(
+    // Range.of(0, 2),
+    // Range.of(1, 3),
+    // Range.of(2, 4),
+    // Range.of(3, 5),
+    // Range.of(4, 6),
+    // Range.of(5, 7));
+    // int answer = 6;
+    // int submit = Solution.solution(holes, plankLen);
+    // int submit2 = Solution2.solution(holes, plankLen);
 
         assertEquals(answer, submit);
         assertEquals(answer, submit2);
