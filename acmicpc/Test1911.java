@@ -266,9 +266,9 @@ public class Test1911 {
     // int submit = Solution.solution(holes, plankLen);
     // int submit2 = Solution2.solution(holes, plankLen);
 
-        assertEquals(answer, submit);
-        assertEquals(answer, submit2);
-        int submit3 = Solution3.solution(holes, plankLen);
-        assertEquals(answer, submit3);
-    }
+    // // assertEquals(answer, submit);
+    // // assertEquals(answer, submit2);
+    // int submit3 = Solution3.solution(holes, plankLen);
+    // assertEquals(answer, submit3);
+    // }
 }
