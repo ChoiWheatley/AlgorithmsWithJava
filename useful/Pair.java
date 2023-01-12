@@ -28,13 +28,10 @@ public class Pair<A extends Comparable<A>, B extends Comparable<B>> implements C
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof Pair<?, ?>) {
-            return equals((Pair<?, ?>) obj);
+            Pair<? extends A, ? extends B> o = (Pair<? extends A, ? extends B>) obj;
+            return this.first.compareTo(o.first) == 0 && this.second.compareTo(o.second) == 0;
         }
         return false;
-    }
-
-    public <A extends Comparable<A>, B extends Comparable<B>> boolean equals(Pair<A, B> o) {
-        return this.first == o.first && this.second == o.second;
     }
 
     public static <A extends Comparable<A>, B extends Comparable<B>> Pair<A, B> of(A first, B second) {
